@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Universal Calculator Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#080c14;--bg2:#0d1220;--card:#111827;--card2:#1a2235;--border:#1e2d45;--accent:#f59e0b;--accent2:#fbbf24;--text:#e2e8f0;--muted:#64748b;--muted2:#94a3b8;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+/* TOPBAR */
+#topbar{height:54px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 1rem;gap:.8rem;flex-shrink:0;z-index:100}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--accent);white-space:nowrap}
+.logo span{color:var(--text)}
+#sw{flex:1;max-width:430px;position:relative}
+#sw input{width:100%;padding:.4rem .8rem .4rem 1.9rem;background:var(--card);border:1px solid var(--border);border-radius:.5rem;color:var(--text);font-family:'Nunito',sans-serif;font-size:.83rem;outline:none;transition:.2s}
+#sw input:focus{border-color:var(--accent)}
+#sw .si{position:absolute;left:.55rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem;pointer-events:none}
+#sr{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card2);border:1px solid var(--border);border-radius:.75rem;z-index:400;max-height:260px;overflow-y:auto;display:none;box-shadow:0 12px 32px rgba(0,0,0,.6)}
+#sr.show{display:block}
+.sri{display:flex;align-items:center;gap:.6rem;padding:.5rem .8rem;cursor:pointer;border-bottom:1px solid var(--border);transition:.15s}
+.sri:last-child{border-bottom:none}.sri:hover{background:rgba(245,158,11,.07)}
+.sri .sn{font-weight:700;font-size:.82rem}.sri .sc{font-size:.72rem;color:var(--muted)}
+.tbr{margin-left:auto;display:flex;gap:.5rem;align-items:center}
+.dmbtn{background:var(--card);border:1px solid var(--border);border-radius:.4rem;padding:.28rem .6rem;color:var(--text);font-size:.8rem;cursor:pointer;transition:.15s}
+.dmbtn:hover{border-color:var(--accent);color:var(--accent)}
+.av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#ec4899);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.75rem;color:#000;flex-shrink:0}
+.hbg{display:none;background:none;border:none;color:var(--text);font-size:1.2rem;cursor:pointer;padding:.2rem}
+/* LAYOUT */
+#layout{display:flex;flex:1;overflow:hidden}
+/* SIDEBAR */
+#sidebar{width:205px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;transition:.25s}
+.sbs{padding:.55rem .55rem .25rem;font-size:.62rem;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.sbi{display:flex;align-items:center;gap:.5rem;padding:.4rem .7rem;margin:1px .35rem;border-radius:.45rem;cursor:pointer;transition:.15s;font-size:.79rem;font-weight:600;color:var(--muted2)}
+.sbi:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.sbi.active{background:rgba(245,158,11,.12);color:var(--accent)}
+.sbi .ico{font-size:.85rem;width:16px;text-align:center}
+.sbc{margin-left:auto;background:var(--border);border-radius:1rem;padding:0 .3rem;font-size:.62rem;color:var(--muted)}
+.sbdiv{height:1px;background:var(--border);margin:.3rem .55rem}
+.sbb{padding:.6rem;border-top:1px solid var(--border);margin-top:auto;flex-shrink:0}
+.sbb p{font-size:.67rem;color:var(--muted);text-align:center;line-height:1.6}
+.sbb strong{color:var(--accent)}
+/* MAIN */
+#main{flex:1;overflow-y:auto;padding:1.2rem}
+.view{display:none}.view.active{display:block;animation:fu .28s ease}
+@keyframes fu{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+/* BANNER */
+.banner{background:linear-gradient(135deg,#1a2040,#0f1a35,#1a1020);border:1px solid var(--border);border-radius:.9rem;padding:1.2rem 1.4rem;margin-bottom:1.2rem;position:relative;overflow:hidden}
+.banner::before{content:'∞';position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:9rem;font-weight:800;color:rgba(245,158,11,.04);pointer-events:none}
+.banner h1{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:.25rem}.banner h1 span{color:var(--accent)}
+.banner p{color:var(--muted2);font-size:.84rem}
+.bstats{display:flex;gap:.55rem;margin-top:.85rem;flex-wrap:wrap}
+.bst{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:.45rem;padding:.32rem .7rem}
+.bst strong{color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.98rem;font-weight:600;display:block}
+.bst span{font-size:.68rem;color:var(--muted2)}
+/* SECTION HEAD */
+.sh{display:flex;align-items:center;gap:.5rem;margin-bottom:.72rem}
+.sh h2{font-family:'Syne',sans-serif;font-size:.93rem;font-weight:800}
+.sh .badge{background:var(--border);border-radius:1rem;padding:.07rem .38rem;font-size:.68rem;color:var(--muted2)}
+/* GRID */
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:.6rem;margin-bottom:1.2rem}
+/* CARD */
+.cc{background:var(--card);border:1px solid var(--border);border-radius:.75rem;padding:.8rem;cursor:pointer;transition:.18s;position:relative}
+.cc:hover{transform:translateY(-2px);border-color:var(--cc,var(--accent));box-shadow:0 5px 16px rgba(0,0,0,.3)}
+.cc .fb{position:absolute;top:.42rem;right:.42rem;background:none;border:none;font-size:.73rem;cursor:pointer;opacity:.28;transition:.2s}
+.cc .fb.on{opacity:1}.cc .fb:hover{opacity:1;transform:scale(1.2)}
+.cc .ci{font-size:1.3rem;margin-bottom:.35rem}
+.cc .cn{font-weight:700;font-size:.8rem;margin-bottom:.15rem;line-height:1.3}
+.cc .cd{font-size:.68rem;color:var(--muted2);line-height:1.33;margin-bottom:.48rem}
+.cc .ob{background:transparent;border:1px solid currentColor;border-radius:.3rem;padding:.2rem .5rem;font-size:.68rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;transition:.15s}
+.cc .ob:hover{opacity:.8}
+/* MODAL */
+#mo{position:fixed;inset:0;background:rgba(0,0,0,.76);z-index:500;display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
+#mo.show{display:flex}
+#mb{background:var(--card2);border:1px solid var(--border);border-radius:1rem;width:100%;max-width:415px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.6);animation:mi .22s ease}
+@keyframes mi{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.mh{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.1rem;border-bottom:1px solid var(--border)}
+.mh h3{font-family:'Syne',sans-serif;font-weight:800;font-size:.93rem}
+.mc{background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;line-height:1}.mc:hover{color:var(--text)}
+.mbody{padding:.95rem 1.1rem;display:flex;flex-direction:column;gap:.58rem}
+.f label{display:block;font-size:.7rem;font-weight:700;color:var(--muted2);margin-bottom:.23rem;text-transform:uppercase;letter-spacing:.04em}
+.f input,.f select,.f textarea{width:100%;padding:.43rem .65rem;background:var(--card);border:1px solid var(--border);border-radius:.45rem;color:var(--text);font-family:'Nunito',sans-serif;font-size:.84rem;outline:none;transition:.2s}
+.f input:focus,.f select:focus,.f textarea:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(245,158,11,.1)}
+.f select option{background:var(--card2)}.f textarea{resize:vertical;min-height:70px}
+.rb{background:var(--bg2);border:1px solid var(--border);border-radius:.6rem;padding:.68rem .9rem;margin-top:.22rem}
+.rr{display:flex;justify-content:space-between;align-items:center;padding:.24rem 0;border-bottom:1px solid var(--border)}
+.rr:last-child{border-bottom:none}
+.rr .rl{font-size:.73rem;color:var(--muted2)}.rr .rv{font-weight:700;font-size:.86rem;font-family:'JetBrains Mono',monospace;word-break:break-all;text-align:right;max-width:65%}
+.rr.big .rv{font-size:1.1rem;color:var(--accent)}.rr.red .rv{color:#ef4444}.rr.green .rv{color:#10b981}.rr.blue .rv{color:#3b82f6}
+.cbtn{width:100%;padding:.5rem;background:var(--accent);border:none;border-radius:.55rem;color:#000;font-family:'Syne',sans-serif;font-weight:800;font-size:.88rem;cursor:pointer;margin-top:.22rem;transition:.15s}
+.cbtn:hover{background:var(--accent2)}
+.info{font-size:.73rem;color:var(--muted2);background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.15);border-radius:.42rem;padding:.45rem .65rem}
+/* HISTORY */
+.hl{display:flex;flex-direction:column;gap:.42rem}
+.hi{background:var(--card);border:1px solid var(--border);border-radius:.52rem;padding:.55rem .88rem;display:flex;justify-content:space-between;align-items:center}
+.hi .hn{font-weight:700;font-size:.8rem}.hi .ht{font-size:.7rem;color:var(--muted)}
+.es{text-align:center;padding:2.5rem 1rem;border:1px dashed var(--border);border-radius:.88rem;color:var(--muted)}
+.es .ei{font-size:1.7rem;margin-bottom:.4rem}.es p{font-size:.8rem}
+/* ANALYTICS */
+.ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:.9rem;margin-bottom:1.2rem}
+.ac{background:var(--card);border:1px solid var(--border);border-radius:.8rem;padding:.88rem}
+.ac h4{font-family:'Syne',sans-serif;font-weight:800;font-size:.84rem;margin-bottom:.68rem;color:var(--muted2)}
+.bc{display:flex;flex-direction:column;gap:.34rem}
+.br{display:flex;align-items:center;gap:.5rem}
+.bl{font-size:.68rem;color:var(--muted2);width:26px;text-align:right;flex-shrink:0}
+.bt{flex:1;height:9px;background:var(--bg2);border-radius:4px;overflow:hidden}
+.bf{height:100%;border-radius:4px;transition:width .6s ease}
+.bv{font-size:.67rem;font-family:'JetBrains Mono',monospace;color:var(--muted2);width:32px;flex-shrink:0}
+.rp{display:flex;gap:.38rem;flex-wrap:wrap;margin-bottom:1.2rem}
+.pill{background:var(--card);border:1px solid var(--border);border-radius:1rem;padding:.16rem .58rem;font-size:.73rem;color:var(--muted2)}
+/* COLOR MAP */
+.ca{--cc:#6366f1}.cm{--cc:#ec4899}.cf{--cc:#10b981}.csh{--cc:#f97316}
+.cfu{--cc:#ef4444}.cg2{--cc:#f59e0b}.ct{--cc:#8b5cf6}.cdl{--cc:#3b82f6}
+.ch{--cc:#10b981}.cpr{--cc:#06b6d4}.cconv{--cc:#94a3b8}.cha{--cc:#a855f7}
+.ccs{--cc:#22d3ee}.cdt{--cc:#fb923c}.csci{--cc:#34d399}.chou{--cc:#fbbf24}
+.ceq{--cc:#a78bfa}.cso{--cc:#4ade80}.cal2{--cc:#f472b6}.ccalc{--cc:#38bdf8}
+/* CALCULATOR WIDGET */
+#calc-wrap{display:flex;flex-direction:column;align-items:center;gap:1.1rem;margin-bottom:1.2rem}
+#calc-widget{background:var(--card);border:1px solid var(--border);border-radius:1.1rem;padding:1.1rem;width:100%;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+#calc-screen{background:var(--bg);border:1px solid var(--border);border-radius:.65rem;padding:.65rem 1rem;margin-bottom:.8rem;text-align:right}
+#calc-expr{font-size:.74rem;color:var(--muted);min-height:1.1em;font-family:'JetBrains Mono',monospace;word-break:break-all}
+#calc-disp{font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:600;color:var(--text);min-height:2.5rem;word-break:break-all;line-height:1.2}
+.calc-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem}
+.cb{border:none;border-radius:.52rem;padding:.68rem .2rem;font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:.12s;user-select:none}
+.cb:active{transform:scale(.91)}
+.cb.num{background:var(--card2);color:var(--text)}.cb.num:hover{background:var(--border)}
+.cb.op{background:rgba(245,158,11,.14);color:var(--accent)}.cb.op:hover{background:rgba(245,158,11,.26)}
+.cb.eq{background:var(--accent);color:#000;grid-column:span 2}.cb.eq:hover{background:var(--accent2)}
+.cb.clr{background:rgba(239,68,68,.14);color:#ef4444}.cb.clr:hover{background:rgba(239,68,68,.26)}
+.cb.fn{background:rgba(99,102,241,.14);color:#818cf8}.cb.fn:hover{background:rgba(99,102,241,.26)}
+.cb.zero{grid-column:span 2}
+#calc-hist{width:100%;max-width:340px;background:var(--card);border:1px solid var(--border);border-radius:.8rem;padding:.78rem 1rem}
+#calc-hist h4{font-family:'Syne',sans-serif;font-size:.8rem;font-weight:800;color:var(--muted2);margin-bottom:.48rem;display:flex;justify-content:space-between}
+#calc-hist h4 button{background:none;border:none;color:var(--muted);font-size:.7rem;cursor:pointer;font-family:'Nunito',sans-serif}
+#calc-hist-list{display:flex;flex-direction:column;gap:.28rem;max-height:180px;overflow-y:auto}
+.ch-item{display:flex;justify-content:space-between;align-items:center;font-size:.77rem;padding:.22rem 0;border-bottom:1px solid var(--border)}
+.ch-item:last-child{border-bottom:none}
+.ch-item .ch-e{color:var(--muted2);font-family:'JetBrains Mono',monospace;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ch-item .ch-v{color:var(--accent);font-weight:700;font-family:'JetBrains Mono',monospace;cursor:pointer;flex-shrink:0;margin-left:.5rem}
+.ch-item .ch-v:hover{text-decoration:underline}
+@media(max-width:680px){
+  #sidebar{position:fixed;top:54px;left:-205px;height:calc(100vh - 54px);z-index:200}
+  #sidebar.open{left:0;box-shadow:8px 0 32px rgba(0,0,0,.5)}
+  .hbg{display:flex!important}
+  #main{padding:.85rem}
+  .cg{grid-template-columns:repeat(auto-fill,minmax(125px,1fr))}
+}
+</style>
+</head>
+<body>
+<div id="topbar">
+  <button class="hbg" onclick="toggleSB()">☰</button>
+  <div class="logo">🧮 <span>Calc</span>Hub</div>
+  <div id="sw">
+    <span class="si">🔍</span>
+    <input id="si" type="text" placeholder="Search 120+ calculators…"/>
+    <div id="sr"></div>
+  </div>
+  <div class="tbr">
+    <button class="dmbtn" onclick="toggleTheme()" id="tb">☀️ Light</button>
+    <div class="av">U</div>
+  </div>
+</div>
+<div id="layout">
+<div id="sidebar">
+  <div class="sbs">Main</div>
+  <div class="sbi active" data-view="dashboard" onclick="sv(this)"><span class="ico">⊞</span>Dashboard</div>
+  <div class="sbi" data-view="analytics" onclick="sv(this)"><span class="ico">📊</span>Analytics</div>
+  <div class="sbdiv"></div>
+  <div class="sbs">Calculators</div>
+  <div class="sbi" data-view="academic" onclick="sv(this)"><span class="ico">🎓</span>Academic<span class="sbc">6</span></div>
+  <div class="sbi" data-view="math" onclick="sv(this)"><span class="ico">➗</span>Math<span class="sbc">6</span></div>
+  <div class="sbi" data-view="finance" onclick="sv(this)"><span class="ico">💰</span>Finance<span class="sbc">6</span></div>
+  <div class="sbi" data-view="shopping" onclick="sv(this)"><span class="ico">🛒</span>Shopping<span class="sbc">6</span></div>
+  <div class="sbi" data-view="fuel" onclick="sv(this)"><span class="ico">🚗</span>Fuel & Travel<span class="sbc">5</span></div>
+  <div class="sbi" data-view="global" onclick="sv(this)"><span class="ico">🌐</span>Global<span class="sbc">5</span></div>
+  <div class="sbi" data-view="tech" onclick="sv(this)"><span class="ico">💻</span>Tech<span class="sbc">5</span></div>
+  <div class="sbi" data-view="daily" onclick="sv(this)"><span class="ico">🏠</span>Daily Life<span class="sbc">5</span></div>
+  <div class="sbi" data-view="health" onclick="sv(this)"><span class="ico">❤️</span>Health<span class="sbc">5</span></div>
+  <div class="sbi" data-view="productivity" onclick="sv(this)"><span class="ico">🧠</span>Productivity<span class="sbc">5</span></div>
+  <div class="sbdiv"></div>
+  <div class="sbs">New Categories</div>
+  <div class="sbi" data-view="house" onclick="sv(this)"><span class="ico">🏡</span>House & Area<span class="sbc">7</span></div>
+  <div class="sbi" data-view="cs" onclick="sv(this)"><span class="ico">💾</span>CS & Binary<span class="sbc">8</span></div>
+  <div class="sbi" data-view="datetime" onclick="sv(this)"><span class="ico">📅</span>Date & Time<span class="sbc">5</span></div>
+  <div class="sbi" data-view="allconv" onclick="sv(this)"><span class="ico">🔄</span>Converters<span class="sbc">10</span></div>
+  <div class="sbi" data-view="equation" onclick="sv(this)"><span class="ico">📐</span>X → Y Equation<span class="sbc">4</span></div>
+  <div class="sbi" data-view="sound" onclick="sv(this)"><span class="ico">🔊</span>Sound & Frequency<span class="sbc">5</span></div>
+  <div class="sbi" data-view="alpha" onclick="sv(this)"><span class="ico">🔡</span>Alphabet & Text<span class="sbc">5</span></div>
+  <div class="sbi" data-view="science" onclick="sv(this)"><span class="ico">⚗️</span>Science<span class="sbc">8</span></div>
+  <div class="sbdiv"></div>
+  <div class="sbs">Personal</div>
+  <div class="sbi" data-view="favorites" onclick="sv(this)"><span class="ico">⭐</span>Favorites</div>
+  <div class="sbi" data-view="history" onclick="sv(this)"><span class="ico">🕐</span>History</div>
+  <div class="sbdiv"></div>
+  <div class="sbs">Quick Tools</div>
+  <div class="sbi" data-view="calculator" onclick="sv(this)"><span class="ico">🔢</span>Calculator</div>
+  <div class="sbb"><p><strong>Universal Calculator Hub</strong><br/>v3.0 · 120+ Calculators</p></div>
+</div>
+
+<div id="main">
+<!-- DASHBOARD -->
+<div id="view-dashboard" class="view active">
+  <div class="banner">
+    <h1><span>Universal</span> Calculator Hub 🧮</h1>
+    <p>120+ calculators — Academic, Finance, CS/Binary, Science, House, Sound, Equations & more.</p>
+    <div class="bstats">
+      <div class="bst"><strong>120+</strong><span>Calculators</span></div>
+      <div class="bst"><strong id="sf">0</strong><span>Favorites</span></div>
+      <div class="bst"><strong id="sh2">0</strong><span>Used</span></div>
+      <div class="bst"><strong>18</strong><span>Categories</span></div>
+    </div>
+  </div>
+  <div id="recent-wrap" style="display:none"><div class="sh"><h2>🕐 Recent</h2></div><div class="rp" id="rp"></div></div>
+  <div id="d-academic"></div>
+  <div id="d-house"></div>
+  <div id="d-cs"></div>
+  <div id="d-science"></div>
+  <div id="d-sound"></div>
+</div>
+<!-- ANALYTICS -->
+<div id="view-analytics" class="view">
+  <div class="sh"><h2>📊 Analytics</h2><span class="badge">Sample Data</span></div>
+  <div class="ag" id="ag"></div>
+</div>
+<!-- ALL VIEWS -->
+<div id="view-academic" class="view"></div>
+<div id="view-math" class="view"></div>
+<div id="view-finance" class="view"></div>
+<div id="view-shopping" class="view"></div>
+<div id="view-fuel" class="view"></div>
+<div id="view-global" class="view"></div>
+<div id="view-tech" class="view"></div>
+<div id="view-daily" class="view"></div>
+<div id="view-health" class="view"></div>
+<div id="view-productivity" class="view"></div>
+<div id="view-house" class="view"></div>
+<div id="view-cs" class="view"></div>
+<div id="view-datetime" class="view"></div>
+<div id="view-allconv" class="view"></div>
+<div id="view-equation" class="view"></div>
+<div id="view-sound" class="view"></div>
+<div id="view-alpha" class="view"></div>
+<div id="view-science" class="view"></div>
+<div id="view-favorites" class="view"><div class="sh"><h2>⭐ Favorites</h2></div><div id="fav-g" class="cg"></div></div>
+<div id="view-history" class="view"><div class="sh"><h2>🕐 History</h2></div><div id="hist-l"></div></div>
+<div id="view-calculator" class="view">
+  <div class="sh"><h2>🔢 Calculator</h2><span class="badge">Standard + Scientific</span></div>
+  <div id="calc-wrap">
+    <div id="calc-widget">
+      <div id="calc-screen">
+        <div id="calc-expr"></div>
+        <div id="calc-disp">0</div>
+      </div>
+      <div class="calc-btns">
+        <button class="cb clr" onclick="cAC()">AC</button>
+        <button class="cb fn" onclick="cToggleSign()">+/−</button>
+        <button class="cb fn" onclick="cPercent()">%</button>
+        <button class="cb op" onclick="cOp('÷')">÷</button>
+
+        <button class="cb num" onclick="cNum('7')">7</button>
+        <button class="cb num" onclick="cNum('8')">8</button>
+        <button class="cb num" onclick="cNum('9')">9</button>
+        <button class="cb op" onclick="cOp('×')">×</button>
+
+        <button class="cb num" onclick="cNum('4')">4</button>
+        <button class="cb num" onclick="cNum('5')">5</button>
+        <button class="cb num" onclick="cNum('6')">6</button>
+        <button class="cb op" onclick="cOp('−')">−</button>
+
+        <button class="cb num" onclick="cNum('1')">1</button>
+        <button class="cb num" onclick="cNum('2')">2</button>
+        <button class="cb num" onclick="cNum('3')">3</button>
+        <button class="cb op" onclick="cOp('+')">+</button>
+
+        <button class="cb num zero" onclick="cNum('0')">0</button>
+        <button class="cb num" onclick="cDot()">.</button>
+        <button class="cb eq" onclick="cEquals()">=</button>
+      </div>
+      <!-- Scientific row -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin-top:.4rem">
+        <button class="cb fn" onclick="cSci('sqrt')">√</button>
+        <button class="cb fn" onclick="cSci('sq')">x²</button>
+        <button class="cb fn" onclick="cSci('inv')">1/x</button>
+        <button class="cb fn" onclick="cSci('log')">log</button>
+        <button class="cb fn" onclick="cSci('ln')">ln</button>
+        <button class="cb fn" onclick="cSci('sin')">sin</button>
+        <button class="cb fn" onclick="cSci('cos')">cos</button>
+        <button class="cb fn" onclick="cSci('tan')">tan</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin-top:.4rem">
+        <button class="cb fn" onclick="cSci('pi')">π</button>
+        <button class="cb fn" onclick="cSci('e')">e</button>
+        <button class="cb fn" onclick="cSci('abs')">|x|</button>
+        <button class="cb clr" onclick="cDel()">⌫</button>
+      </div>
+    </div>
+    <div id="calc-hist">
+      <h4>History <button onclick="cClearHist()">Clear</button></h4>
+      <div id="calc-hist-list"><p style="font-size:.75rem;color:var(--muted)">No calculations yet.</p></div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- MODAL -->
+<div id="mo" onclick="closeMO(event)">
+  <div id="mb">
+    <div class="mh"><h3 id="mt">Calculator</h3><button class="mc" onclick="closeMD()">✕</button></div>
+    <div class="mbody" id="mbody"></div>
+  </div>
+</div>
+
+<script>
+// ===================== DATA =====================
+const CATS={
+  academic:{label:'Academic',icon:'🎓',color:'#6366f1',cls:'ca',calcs:[
+    {id:'cgpa',icon:'📊',name:'CGPA → %',desc:'Convert CGPA to percentage'},
+    {id:'attendance',icon:'📅',name:'Attendance',desc:'Check attendance safe/shortage'},
+    {id:'spi',icon:'📈',name:'SPI / CPI',desc:'Semester Performance Index'},
+    {id:'grade_target',icon:'🎯',name:'Grade Target',desc:'Score needed for target grade'},
+    {id:'exam_countdown',icon:'⏰',name:'Exam Countdown',desc:'Days remaining until exam'},
+    {id:'study_time',icon:'📚',name:'Study Time',desc:'Hours needed for syllabus'},
+  ]},
+  math:{label:'Math',icon:'➗',color:'#ec4899',cls:'cm',calcs:[
+    {id:'percentage',icon:'%',name:'Percentage',desc:'Find X% of any value'},
+    {id:'quadratic',icon:'📐',name:'Quadratic',desc:'Solve ax²+bx+c=0'},
+    {id:'gcd_lcm',icon:'🔢',name:'GCD / LCM',desc:'Greatest common divisor & LCM'},
+    {id:'probability',icon:'🎲',name:'Probability',desc:'Simple probability calculation'},
+    {id:'factorial',icon:'!',name:'Factorial / nCr',desc:'Factorial and combinations'},
+    {id:'stddev',icon:'📉',name:'Std Deviation',desc:'Mean & standard deviation'},
+  ]},
+  finance:{label:'Finance',icon:'💰',color:'#10b981',cls:'cf',calcs:[
+    {id:'emi',icon:'🏦',name:'EMI',desc:'Loan EMI with interest'},
+    {id:'compound',icon:'📈',name:'Compound Interest',desc:'Growth with compounding'},
+    {id:'tax',icon:'🧾',name:'Income Tax',desc:'Indian tax slabs estimate'},
+    {id:'profit_loss',icon:'💹',name:'Profit / Loss',desc:'P&L with percentage'},
+    {id:'sip',icon:'💳',name:'SIP Returns',desc:'Mutual fund SIP maturity'},
+    {id:'salary_tax',icon:'💼',name:'Salary After Tax',desc:'Take-home after deductions'},
+  ]},
+  shopping:{label:'Shopping',icon:'🛒',color:'#f97316',cls:'csh',calcs:[
+    {id:'discount',icon:'🏷️',name:'Discount',desc:'Final price after discount %'},
+    {id:'multi_discount',icon:'🔖',name:'Multi Discount',desc:'Stack two successive discounts'},
+    {id:'gst',icon:'📋',name:'GST',desc:'Add or extract GST from price'},
+    {id:'unit_price',icon:'⚖️',name:'Price vs Weight',desc:'Compare 2 products price/weight'},
+    {id:'cashback',icon:'💸',name:'Cashback',desc:'Net price after cashback'},
+    {id:'price_drop',icon:'📉',name:'Price Drop',desc:'Is this deal worth buying?'},
+  ]},
+  fuel:{label:'Fuel & Travel',icon:'🚗',color:'#ef4444',cls:'cfu',calcs:[
+    {id:'fuel',icon:'⛽',name:'Fuel Cost',desc:'Daily & monthly fuel cost'},
+    {id:'round_trip',icon:'🔄',name:'Round Trip',desc:'Total fuel cost for round trip'},
+    {id:'cost_per_km',icon:'📍',name:'Cost per KM',desc:'Cost per kilometre driven'},
+    {id:'ev_comparison',icon:'⚡',name:'Petrol vs EV',desc:'Compare running costs'},
+    {id:'trip_budget',icon:'🗺️',name:'Trip Budget',desc:'Full trip cost estimate'},
+  ]},
+  global:{label:'Global Tools',icon:'🌐',color:'#f59e0b',cls:'cg2',calcs:[
+    {id:'currency_tax',icon:'💱',name:'Currency + Tax',desc:'Convert with fees & tax'},
+    {id:'hourly_income',icon:'⏱️',name:'Hourly Income',desc:'Freelancer monthly in INR'},
+    {id:'paypal_fee',icon:'💸',name:'PayPal Fees',desc:'PayPal transaction charges'},
+    {id:'fiverr_income',icon:'🟢',name:'Fiverr Income',desc:'Net after Fiverr commission'},
+    {id:'import_duty',icon:'📦',name:'Import Duty',desc:'Indian customs duty estimate'},
+  ]},
+  tech:{label:'Tech',icon:'💻',color:'#8b5cf6',cls:'ct',calcs:[
+    {id:'storage',icon:'💾',name:'Storage',desc:'Convert KB MB GB TB'},
+    {id:'binary',icon:'🔢',name:'Base Converter',desc:'Bin/Oct/Dec/Hex any to any'},
+    {id:'bandwidth',icon:'📡',name:'Bandwidth',desc:'Download time estimate'},
+    {id:'uptime',icon:'🟢',name:'Uptime %',desc:'Server uptime calculator'},
+    {id:'data_usage',icon:'📶',name:'Data Usage',desc:'Monthly internet usage'},
+  ]},
+  daily:{label:'Daily Life',icon:'🏠',color:'#3b82f6',cls:'cdl',calcs:[
+    {id:'electricity',icon:'💡',name:'Electricity Bill',desc:'Monthly electricity cost'},
+    {id:'age',icon:'🎂',name:'Age',desc:'Exact age & birthday countdown'},
+    {id:'tip',icon:'🍽️',name:'Tip Calculator',desc:'Split bill & tip per person'},
+    {id:'sleep',icon:'😴',name:'Sleep Cycle',desc:'Best wake-up times'},
+    {id:'grocery',icon:'🛍️',name:'Grocery Budget',desc:'Total grocery list spending'},
+  ]},
+  health:{label:'Health',icon:'❤️',color:'#10b981',cls:'ch',calcs:[
+    {id:'bmi',icon:'⚖️',name:'BMI',desc:'Body mass index & category'},
+    {id:'calorie',icon:'🔥',name:'Calorie (TDEE)',desc:'Daily calorie needs'},
+    {id:'water_intake',icon:'💧',name:'Water Intake',desc:'Recommended daily water'},
+    {id:'ideal_weight',icon:'🏋️',name:'Ideal Weight',desc:'Healthy weight for height'},
+    {id:'heart_rate',icon:'❤️',name:'Heart Rate Zone',desc:'Target heart rate zones'},
+  ]},
+  productivity:{label:'Productivity',icon:'🧠',color:'#06b6d4',cls:'cpr',calcs:[
+    {id:'time_alloc',icon:'🕐',name:'Time Allocation',desc:'Split day into blocks'},
+    {id:'task_priority',icon:'📋',name:'Task Priority',desc:'Score urgency & importance'},
+    {id:'goal_progress',icon:'🎯',name:'Goal Progress',desc:'Track % goal completion'},
+    {id:'workload',icon:'📦',name:'Workload',desc:'Days to complete all tasks'},
+    {id:'productivity_idx',icon:'📊',name:'Productivity Index',desc:'Score daily productivity'},
+  ]},
+  // ══ NEW ══
+  house:{label:'House & Area',icon:'🏡',color:'#fbbf24',cls:'chou',calcs:[
+    {id:'room_area',icon:'📐',name:'Room Area',desc:'L×W in m², ft², sq yd'},
+    {id:'paint_calc',icon:'🎨',name:'Paint Calculator',desc:'Litres of paint needed'},
+    {id:'flooring',icon:'🟫',name:'Flooring Cost',desc:'Tiles count & total cost'},
+    {id:'sqft_sqm',icon:'🔁',name:'sq ft ↔ sq m',desc:'Convert all area units'},
+    {id:'volume_box',icon:'📦',name:'Volume (Box/Cylinder)',desc:'Volume of any 3D shape'},
+    {id:'wall_area',icon:'🧱',name:'Wall Area',desc:'Total paintable wall area'},
+    {id:'plot_area',icon:'🗺️',name:'Plot / Land Area',desc:'Acres, guntha, sq ft, sq m'},
+  ]},
+  cs:{label:'CS & Binary',icon:'💾',color:'#22d3ee',cls:'ccs',calcs:[
+    {id:'ones_comp',icon:'1️⃣',name:"1's Complement",desc:'Invert all bits'},
+    {id:'twos_comp',icon:'2️⃣',name:"2's Complement",desc:"1's complement + 1"},
+    {id:'nines_comp',icon:'9️⃣',name:"9's Complement",desc:'9 minus each decimal digit'},
+    {id:'tens_comp',icon:'🔟',name:"10's Complement",desc:"9's complement + 1"},
+    {id:'base_conv',icon:'🔄',name:'Base Converter',desc:'Bin/Oct/Dec/Hex any↔any'},
+    {id:'ieee754',icon:'🖥️',name:'IEEE 754 Float',desc:'32-bit binary float format'},
+    {id:'data_types',icon:'📊',name:'Data Types & Ranges',desc:'int, float, char, bool sizes'},
+    {id:'bits_bytes',icon:'💡',name:'Bits & Bytes',desc:'bit, B, KB, MB, GB, TB, PB'},
+  ]},
+  datetime:{label:'Date & Time',icon:'📅',color:'#fb923c',cls:'cdt',calcs:[
+    {id:'date_diff',icon:'📅',name:'Date Difference',desc:'Days/weeks/months between dates'},
+    {id:'time_calc',icon:'⏱️',name:'Time Calculator',desc:'Add or subtract time values'},
+    {id:'day_of_week',icon:'📆',name:'Day of Week',desc:'What day is any date?'},
+    {id:'unix_time',icon:'🕐',name:'Unix Timestamp',desc:'Date ↔ Unix timestamp'},
+    {id:'timezone',icon:'🌍',name:'Time Zone',desc:'Convert between world zones'},
+  ]},
+  allconv:{label:'All Converters',icon:'🔄',color:'#94a3b8',cls:'cconv',calcs:[
+    {id:'length',icon:'📏',name:'Length',desc:'mm cm m km inch ft mile'},
+    {id:'weight_conv',icon:'⚖️',name:'Weight / Mass',desc:'kg g mg lb oz tonne'},
+    {id:'temperature',icon:'🌡️',name:'Temperature',desc:'°C °F Kelvin'},
+    {id:'speed',icon:'🏎️',name:'Speed',desc:'km/h m/s mph knots Mach'},
+    {id:'area',icon:'⬛',name:'Area',desc:'m² ft² cm² acres hectares'},
+    {id:'liquid',icon:'💧',name:'Liquid / Volume',desc:'L mL fl oz cups gallons pints'},
+    {id:'pressure',icon:'🌬️',name:'Pressure',desc:'Pa kPa bar psi atm mmHg'},
+    {id:'energy_conv',icon:'⚡',name:'Energy',desc:'J kJ cal kcal kWh eV'},
+    {id:'memory',icon:'💾',name:'Memory Units',desc:'bit B KB MB GB TB PB EB'},
+    {id:'angle',icon:'🔺',name:'Angle',desc:'Degrees, radians, gradians'},
+  ]},
+  equation:{label:'X → Y Equation',icon:'📐',color:'#a78bfa',cls:'ceq',calcs:[
+    {id:'linear_eq',icon:'📉',name:'Linear Equation',desc:'y = mx + c, find x or y'},
+    {id:'xy_table',icon:'📊',name:'X → Y Table',desc:'Generate table for any formula'},
+    {id:'ratio_prop',icon:'🔗',name:'Ratio & Proportion',desc:'If x=A then y=? proportional'},
+    {id:'percentage_eq',icon:'%',name:'% Equation',desc:'Percentage of, increase, decrease'},
+  ]},
+  sound:{label:'Sound & Frequency',icon:'🔊',color:'#4ade80',cls:'cso',calcs:[
+    {id:'freq_wave',icon:'〰️',name:'Frequency & Wavelength',desc:'λ=v/f — find any variable'},
+    {id:'db_calc',icon:'🔊',name:'Decibel (dB)',desc:'Sound intensity to dB level'},
+    {id:'note_freq',icon:'🎵',name:'Music Note Hz',desc:'Frequency of any music note'},
+    {id:'sound_dist',icon:'📡',name:'Sound Distance',desc:'Distance sound travels in time'},
+    {id:'doppler',icon:'🚂',name:'Doppler Effect',desc:'Observed frequency with motion'},
+  ]},
+  alpha:{label:'Alphabet & Text',icon:'🔡',color:'#f472b6',cls:'cal2',calcs:[
+    {id:'letter_pos',icon:'🔡',name:'Letter Position',desc:'A=1 to Z=26, find any letter'},
+    {id:'letter_range',icon:'↔️',name:'Letters Between',desc:'D=4 to Z=26, list all between'},
+    {id:'word_value',icon:'💯',name:'Word Value',desc:'Sum of letter positions A=1…Z=26'},
+    {id:'caesar',icon:'🔐',name:'Caesar Cipher',desc:'Encrypt/decrypt by shifting letters'},
+    {id:'text_stats',icon:'📝',name:'Text Statistics',desc:'Chars, words, vowels, consonants'},
+  ]},
+  science:{label:'Science (Physics+Chem)',icon:'⚗️',color:'#34d399',cls:'csci',calcs:[
+    {id:'force',icon:'⚡',name:'Force F=ma',desc:'Force, mass, acceleration'},
+    {id:'kinetic_energy',icon:'🔋',name:'Kinetic Energy',desc:'KE = ½mv²'},
+    {id:'ohms_law',icon:'🔌',name:'Ohm\'s Law',desc:'V=IR, find V, I, or R'},
+    {id:'molarity',icon:'🧪',name:'Molarity',desc:'M = moles / volume (L)'},
+    {id:'ph_calc',icon:'🧫',name:'pH Calculator',desc:'pH = -log[H+]'},
+    {id:'half_life',icon:'☢️',name:'Half-Life Decay',desc:'Radioactive decay N = N₀(½)^t/t½'},
+    {id:'ideal_gas',icon:'💨',name:'Ideal Gas Law',desc:'PV = nRT'},
+    {id:'dilution',icon:'🧴',name:'Dilution',desc:'C₁V₁ = C₂V₂'},
+  ]},
+};
+
+// ===================== STATE =====================
+let favorites=JSON.parse(localStorage.getItem('uch3_f')||'[]');
+let history=JSON.parse(localStorage.getItem('uch3_h')||'[]');
+let lightMode=false;
+
+// ===================== INIT =====================
+function init(){
+  buildAllViews();buildDashboard();buildAnalytics();
+  updateStats();renderHistory();renderFavorites();setupSearch();
+}
+function buildAllViews(){
+  Object.entries(CATS).forEach(([key,cat])=>{
+    const el=document.getElementById('view-'+key);
+    if(!el) return;
+    el.innerHTML=`<div class="sh"><h2>${cat.icon} ${cat.label}</h2><span class="badge">${cat.calcs.length} calculators</span></div><div class="cg">${cat.calcs.map(c=>card(c,cat)).join('')}</div>`;
+  });
+}
+function buildDashboard(){
+  ['academic','house','cs','science','sound'].forEach(key=>{
+    const cat=CATS[key],el=document.getElementById('d-'+key);
+    if(!el||!cat) return;
+    el.innerHTML=`<div class="sh"><h2>${cat.icon} ${cat.label}</h2><span class="badge">${cat.calcs.length}</span></div><div class="cg">${cat.calcs.slice(0,4).map(c=>card(c,cat)).join('')}</div>`;
+  });
+}
+function card(c,cat){
+  const isFav=favorites.includes(c.id);
+  return `<div class="cc ${cat.cls}" style="--cc:${cat.color}" onclick="openCalc('${c.id}')">
+    <button class="fb ${isFav?'on':''}" onclick="event.stopPropagation();toggleFav('${c.id}',this)">⭐</button>
+    <div class="ci">${c.icon}</div><div class="cn">${c.name}</div><div class="cd">${c.desc}</div>
+    <button class="ob" style="color:${cat.color}" onclick="event.stopPropagation();openCalc('${c.id}')">Open →</button>
+  </div>`;
+}
+function buildAnalytics(){
+  const charts=[
+    {title:'📅 Attendance %',bars:[{l:'Jan',v:82,c:'#6366f1'},{l:'Feb',v:75,c:'#6366f1'},{l:'Mar',v:91,c:'#10b981'},{l:'Apr',v:68,c:'#ef4444'},{l:'May',v:85,c:'#6366f1'}]},
+    {title:'💰 Expenses (₹K)',bars:[{l:'Jan',v:60,c:'#10b981'},{l:'Feb',v:75,c:'#10b981'},{l:'Mar',v:55,c:'#10b981'},{l:'Apr',v:90,c:'#f59e0b'},{l:'May',v:70,c:'#10b981'}]},
+    {title:'📚 Study Hrs/Week',bars:[{l:'W1',v:28,c:'#ec4899'},{l:'W2',v:35,c:'#ec4899'},{l:'W3',v:22,c:'#ef4444'},{l:'W4',v:40,c:'#10b981'},{l:'W5',v:32,c:'#ec4899'}]},
+    {title:'⛽ Fuel ₹/month',bars:[{l:'Jan',v:1400,c:'#3b82f6'},{l:'Feb',v:1600,c:'#3b82f6'},{l:'Mar',v:1200,c:'#10b981'},{l:'Apr',v:1800,c:'#f59e0b'},{l:'May',v:1500,c:'#3b82f6'}]},
+  ];
+  const mx=charts.map(ch=>Math.max(...ch.bars.map(b=>b.v)));
+  document.getElementById('ag').innerHTML=charts.map((ch,i)=>`<div class="ac"><h4>${ch.title}</h4><div class="bc">${ch.bars.map(b=>`<div class="br"><span class="bl">${b.l}</span><div class="bt"><div class="bf" style="width:${(b.v/mx[i]*100).toFixed(0)}%;background:${b.c}"></div></div><span class="bv">${b.v}</span></div>`).join('')}</div></div>`).join('');
+}
+
+// ===================== NAV =====================
+function sv(el){
+  document.querySelectorAll('.sbi').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  const v=el.dataset.view;
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  if(v==='favorites') renderFavorites();
+  if(v==='history') renderHistory();
+  document.getElementById('sidebar').classList.remove('open');
+}
+function toggleSB(){document.getElementById('sidebar').classList.toggle('open');}
+
+// ===================== FAV / HISTORY =====================
+function toggleFav(id,btn){
+  favorites=favorites.includes(id)?favorites.filter(f=>f!==id):[...favorites,id];
+  btn.classList.toggle('on',favorites.includes(id));
+  localStorage.setItem('uch3_f',JSON.stringify(favorites));
+  updateStats();renderFavorites();
+  document.querySelectorAll('.fb').forEach(b=>{
+    const c=b.closest('.cc');if(!c) return;
+    const oid=c.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+    if(oid===id) b.classList.toggle('on',favorites.includes(id));
+  });
+}
+function addHistory(name){
+  history.unshift({name,time:new Date().toLocaleTimeString()});
+  history=history.slice(0,30);
+  localStorage.setItem('uch3_h',JSON.stringify(history));
+  updateStats();updatePills();
+}
+function updatePills(){
+  const w=document.getElementById('recent-wrap'),p=document.getElementById('rp');
+  if(!history.length){w.style.display='none';return;}
+  w.style.display='block';
+  p.innerHTML=history.slice(0,8).map(h=>`<span class="pill">${h.name}</span>`).join('');
+}
+function updateStats(){
+  document.getElementById('sf').textContent=favorites.length;
+  document.getElementById('sh2').textContent=history.length;
+  updatePills();
+}
+function renderFavorites(){
+  const g=document.getElementById('fav-g');
+  const fc=[];Object.values(CATS).forEach(cat=>cat.calcs.forEach(c=>{if(favorites.includes(c.id)) fc.push({c,cat});}));
+  g.innerHTML=fc.length?fc.map(({c,cat})=>card(c,cat)).join(''):`<div class="es" style="grid-column:1/-1"><div class="ei">⭐</div><p>No favorites yet.</p></div>`;
+}
+function renderHistory(){
+  const l=document.getElementById('hist-l');
+  l.innerHTML=history.length?`<div class="hl">${history.map(h=>`<div class="hi"><span class="hn">${h.name}</span><span class="ht">${h.time}</span></div>`).join('')}</div>`:`<div class="es"><div class="ei">🕐</div><p>No history yet.</p></div>`;
+}
+
+// ===================== SEARCH =====================
+function setupSearch(){
+  const inp=document.getElementById('si'),res=document.getElementById('sr');
+  const all=[];Object.entries(CATS).forEach(([k,cat])=>cat.calcs.forEach(c=>all.push({...c,catKey:k,catLabel:cat.label})));
+  inp.addEventListener('input',()=>{
+    const q=inp.value.trim().toLowerCase();
+    if(q.length<2){res.classList.remove('show');return;}
+    const hits=all.filter(c=>c.name.toLowerCase().includes(q)||c.desc.toLowerCase().includes(q)||c.catLabel.toLowerCase().includes(q));
+    if(!hits.length){res.classList.remove('show');return;}
+    res.innerHTML=hits.slice(0,9).map(c=>`<div class="sri" onclick="sopenCalc('${c.id}')"><span style="font-size:.95rem">${c.icon}</span><div><div class="sn">${c.name}</div><div class="sc">${c.catLabel}</div></div></div>`).join('');
+    res.classList.add('show');
+  });
+  document.addEventListener('click',e=>{if(!e.target.closest('#sw')) res.classList.remove('show');});
+}
+function sopenCalc(id){document.getElementById('si').value='';document.getElementById('sr').classList.remove('show');openCalc(id);}
+
+// ===================== MODAL =====================
+function openCalc(id){
+  let found=null,fcat=null;
+  Object.values(CATS).forEach(cat=>{const c=cat.calcs.find(x=>x.id===id);if(c){found=c;fcat=cat;}});
+  if(!found) return;
+  addHistory(found.name);
+  document.getElementById('mt').textContent=found.icon+' '+found.name;
+  document.getElementById('mt').style.color=fcat.color;
+  document.getElementById('mbody').innerHTML=buildUI(id,fcat.color);
+  document.getElementById('mo').classList.add('show');
+}
+function closeMO(e){if(e.target===document.getElementById('mo')) closeMD();}
+function closeMD(){document.getElementById('mo').classList.remove('show');}
+
+// ===================== UI BUILDER =====================
+function buildUI(id,color){
+  const B=`<button class="cbtn" style="background:${color};color:${color==='#fbbf24'||color==='#f59e0b'||color==='#4ade80'?'#000':'#fff'}" onclick="FN['${id}']()"  >Calculate</button>`;
+  const M={
+    cgpa:`<div class="f"><label>CGPA (out of 10)</label><input id="c0" type="number" step=".01" min="0" max="10" placeholder="e.g. 8.20"/></div>${B}<div id="R"></div>`,
+    attendance:`<div class="f"><label>Total Classes</label><input id="c0" type="number" placeholder="60"/></div><div class="f"><label>Classes Attended</label><input id="c1" type="number" placeholder="45"/></div>${B}<div id="R"></div>`,
+    spi:`<div class="f"><label>Credits (comma separated)</label><input id="c0" placeholder="4,3,3,2,2"/></div><div class="f"><label>Grade Points (comma separated)</label><input id="c1" placeholder="9,8,7,10,6"/></div>${B}<div id="R"></div>`,
+    grade_target:`<div class="f"><label>Marks obtained so far</label><input id="c0" type="number" placeholder="65"/></div><div class="f"><label>Max marks so far</label><input id="c1" type="number" placeholder="80"/></div><div class="f"><label>Remaining marks</label><input id="c2" type="number" placeholder="70"/></div><div class="f"><label>Target %</label><input id="c3" type="number" placeholder="70"/></div>${B}<div id="R"></div>`,
+    exam_countdown:`<div class="f"><label>Exam Date</label><input id="c0" type="date"/></div>${B}<div id="R"></div>`,
+    study_time:`<div class="f"><label>Subjects</label><input id="c0" type="number" placeholder="6"/></div><div class="f"><label>Chapters/Subject</label><input id="c1" type="number" placeholder="8"/></div><div class="f"><label>Hours/Chapter</label><input id="c2" type="number" step=".5" placeholder="2"/></div>${B}<div id="R"></div>`,
+    percentage:`<div class="f"><label>Value</label><input id="c0" type="number" placeholder="850"/></div><div class="f"><label>Out of (Total)</label><input id="c1" type="number" placeholder="1000"/></div>${B}<div id="R"></div>`,
+    quadratic:`<div class="info">ax² + bx + c = 0</div><div class="f"><label>a</label><input id="c0" type="number" placeholder="1"/></div><div class="f"><label>b</label><input id="c1" type="number" placeholder="-5"/></div><div class="f"><label>c</label><input id="c2" type="number" placeholder="6"/></div>${B}<div id="R"></div>`,
+    gcd_lcm:`<div class="f"><label>Number 1</label><input id="c0" type="number" placeholder="12"/></div><div class="f"><label>Number 2</label><input id="c1" type="number" placeholder="18"/></div>${B}<div id="R"></div>`,
+    probability:`<div class="f"><label>Favourable outcomes</label><input id="c0" type="number" placeholder="3"/></div><div class="f"><label>Total outcomes</label><input id="c1" type="number" placeholder="6"/></div>${B}<div id="R"></div>`,
+    factorial:`<div class="f"><label>n (for n!)</label><input id="c0" type="number" min="0" max="20" placeholder="5"/></div><div class="f"><label>r (for nCr, optional)</label><input id="c1" type="number" placeholder="2"/></div>${B}<div id="R"></div>`,
+    stddev:`<div class="f"><label>Numbers (comma separated)</label><input id="c0" placeholder="10,20,30,40,50"/></div>${B}<div id="R"></div>`,
+    emi:`<div class="f"><label>Loan Amount (₹)</label><input id="c0" type="number" placeholder="500000"/></div><div class="f"><label>Annual Rate (%)</label><input id="c1" type="number" step=".1" placeholder="8.5"/></div><div class="f"><label>Tenure (months)</label><input id="c2" type="number" placeholder="60"/></div>${B}<div id="R"></div>`,
+    compound:`<div class="f"><label>Principal (₹)</label><input id="c0" type="number" placeholder="10000"/></div><div class="f"><label>Annual Rate (%)</label><input id="c1" type="number" step=".1" placeholder="7.5"/></div><div class="f"><label>Time (years)</label><input id="c2" type="number" placeholder="5"/></div><div class="f"><label>Compounding</label><select id="c3"><option value="1">Annually</option><option value="4">Quarterly</option><option value="12" selected>Monthly</option></select></div>${B}<div id="R"></div>`,
+    tax:`<div class="f"><label>Annual Income (₹)</label><input id="c0" type="number" placeholder="800000"/></div>${B}<div id="R"></div>`,
+    profit_loss:`<div class="f"><label>Cost Price (₹)</label><input id="c0" type="number" placeholder="500"/></div><div class="f"><label>Selling Price (₹)</label><input id="c1" type="number" placeholder="650"/></div>${B}<div id="R"></div>`,
+    sip:`<div class="f"><label>Monthly Investment (₹)</label><input id="c0" type="number" placeholder="5000"/></div><div class="f"><label>Annual Return (%)</label><input id="c1" type="number" step=".1" placeholder="12"/></div><div class="f"><label>Period (years)</label><input id="c2" type="number" placeholder="10"/></div>${B}<div id="R"></div>`,
+    salary_tax:`<div class="f"><label>Gross Annual Salary (₹)</label><input id="c0" type="number" placeholder="1200000"/></div><div class="f"><label>Standard Deduction (₹)</label><input id="c1" type="number" value="50000"/></div>${B}<div id="R"></div>`,
+    discount:`<div class="f"><label>Original Price (₹)</label><input id="c0" type="number" placeholder="2000"/></div><div class="f"><label>Discount (%)</label><input id="c1" type="number" placeholder="20"/></div>${B}<div id="R"></div>`,
+    multi_discount:`<div class="f"><label>Price (₹)</label><input id="c0" type="number" placeholder="1000"/></div><div class="f"><label>1st Discount (%)</label><input id="c1" type="number" placeholder="20"/></div><div class="f"><label>2nd Discount (%)</label><input id="c2" type="number" placeholder="10"/></div>${B}<div id="R"></div>`,
+    gst:`<div class="f"><label>Amount (₹)</label><input id="c0" type="number" placeholder="1000"/></div><div class="f"><label>GST Rate</label><select id="c1"><option value="5">5%</option><option value="12">12%</option><option value="18" selected>18%</option><option value="28">28%</option></select></div><div class="f"><label>Mode</label><select id="c2"><option value="add">Add GST (exclusive)</option><option value="rm">Remove GST (inclusive)</option></select></div>${B}<div id="R"></div>`,
+    unit_price:`<div class="info">Compare 2 products — find better price per weight</div><div class="f"><label>Product A — Price (₹)</label><input id="c0" type="number" placeholder="120"/></div><div class="f"><label>Product A — Weight/Qty</label><input id="c1" type="number" step=".01" placeholder="500"/></div><div class="f"><label>Product B — Price (₹)</label><input id="c2" type="number" placeholder="200"/></div><div class="f"><label>Product B — Weight/Qty</label><input id="c3" type="number" step=".01" placeholder="1000"/></div><div class="f"><label>Unit</label><select id="c4"><option value="g">g</option><option value="kg">kg</option><option value="ml">ml</option><option value="L">L</option><option value="pc">pc</option></select></div>${B}<div id="R"></div>`,
+    cashback:`<div class="f"><label>Price (₹)</label><input id="c0" type="number" placeholder="1500"/></div><div class="f"><label>Cashback (%)</label><input id="c1" type="number" placeholder="10"/></div><div class="f"><label>Max Cap (₹, 0=none)</label><input id="c2" type="number" value="0"/></div>${B}<div id="R"></div>`,
+    price_drop:`<div class="f"><label>Current Price (₹)</label><input id="c0" type="number" placeholder="1299"/></div><div class="f"><label>Previous/MRP Price (₹)</label><input id="c1" type="number" placeholder="1999"/></div><div class="f"><label>Your Budget (₹)</label><input id="c2" type="number" placeholder="1500"/></div><div class="f"><label>Category</label><select id="c3"><option value="electronics">Electronics (≥15%)</option><option value="fashion">Fashion (≥25%)</option><option value="grocery">Grocery (≥8%)</option><option value="appliance">Appliance (≥12%)</option><option value="book">Books (≥10%)</option><option value="other">Other (≥10%)</option></select></div>${B}<div id="R"></div>`,
+    fuel:`<div class="f"><label>Distance/day (km)</label><input id="c0" type="number" placeholder="40"/></div><div class="f"><label>Mileage (km/L)</label><input id="c1" type="number" placeholder="50"/></div><div class="f"><label>Fuel Price (₹/L)</label><input id="c2" type="number" placeholder="105"/></div>${B}<div id="R"></div>`,
+    round_trip:`<div class="f"><label>One-way Distance (km)</label><input id="c0" type="number" placeholder="150"/></div><div class="f"><label>Mileage (km/L)</label><input id="c1" type="number" placeholder="15"/></div><div class="f"><label>Fuel Price (₹/L)</label><input id="c2" type="number" placeholder="105"/></div>${B}<div id="R"></div>`,
+    cost_per_km:`<div class="f"><label>Total Distance (km)</label><input id="c0" type="number" placeholder="100"/></div><div class="f"><label>Fuel Used (L)</label><input id="c1" type="number" placeholder="6"/></div><div class="f"><label>Fuel Price (₹/L)</label><input id="c2" type="number" placeholder="105"/></div>${B}<div id="R"></div>`,
+    ev_comparison:`<div class="f"><label>Monthly Distance (km)</label><input id="c0" type="number" placeholder="1000"/></div><div class="f"><label>Petrol Mileage (km/L)</label><input id="c1" type="number" placeholder="15"/></div><div class="f"><label>Petrol Price (₹/L)</label><input id="c2" type="number" placeholder="105"/></div><div class="f"><label>EV Efficiency (km/kWh)</label><input id="c3" type="number" placeholder="6"/></div><div class="f"><label>Electricity Rate (₹/kWh)</label><input id="c4" type="number" value="8"/></div>${B}<div id="R"></div>`,
+    trip_budget:`<div class="f"><label>Distance (km)</label><input id="c0" type="number" placeholder="500"/></div><div class="f"><label>Fuel ₹/km</label><input id="c1" type="number" placeholder="7"/></div><div class="f"><label>Hotel/Night (₹)</label><input id="c2" type="number" placeholder="1500"/></div><div class="f"><label>Nights</label><input id="c3" type="number" placeholder="2"/></div><div class="f"><label>Food/Day (₹)</label><input id="c4" type="number" placeholder="500"/></div><div class="f"><label>Misc (₹)</label><input id="c5" type="number" placeholder="1000"/></div>${B}<div id="R"></div>`,
+    currency_tax:`<div class="f"><label>Amount ($)</label><input id="c0" type="number" placeholder="100"/></div><div class="f"><label>Exchange Rate (₹/$)</label><input id="c1" type="number" value="84"/></div><div class="f"><label>Platform Fee (%)</label><input id="c2" type="number" value="5"/></div><div class="f"><label>Tax (%)</label><input id="c3" type="number" value="18"/></div>${B}<div id="R"></div>`,
+    hourly_income:`<div class="f"><label>Hourly Rate ($)</label><input id="c0" type="number" placeholder="15"/></div><div class="f"><label>Hours/Day</label><input id="c1" type="number" value="6"/></div><div class="f"><label>Working Days/Month</label><input id="c2" type="number" value="22"/></div><div class="f"><label>Exchange Rate (₹/$)</label><input id="c3" type="number" value="84"/></div><div class="f"><label>Tax (%)</label><input id="c4" type="number" value="10"/></div><div class="f"><label>Platform Fee (%)</label><input id="c5" type="number" value="5"/></div>${B}<div id="R"></div>`,
+    paypal_fee:`<div class="f"><label>Amount ($)</label><input id="c0" type="number" placeholder="200"/></div><div class="f"><label>Fee Rate (%)</label><input id="c1" type="number" value="3.49"/></div><div class="f"><label>Fixed Fee ($)</label><input id="c2" type="number" value="0.49"/></div>${B}<div id="R"></div>`,
+    fiverr_income:`<div class="f"><label>Order Value ($)</label><input id="c0" type="number" placeholder="100"/></div><div class="f"><label>Exchange Rate (₹/$)</label><input id="c1" type="number" value="84"/></div>${B}<div id="R"></div>`,
+    import_duty:`<div class="f"><label>Product Value (₹)</label><input id="c0" type="number" placeholder="50000"/></div><div class="f"><label>Basic Duty (%)</label><input id="c1" type="number" value="20"/></div><div class="f"><label>IGST (%)</label><input id="c2" type="number" value="18"/></div>${B}<div id="R"></div>`,
+    storage:`<div class="f"><label>Value</label><input id="c0" type="number" placeholder="1024"/></div><div class="f"><label>From Unit</label><select id="c1"><option value="1">Bytes</option><option value="1024">KB</option><option value="1048576" selected>MB</option><option value="1073741824">GB</option><option value="1099511627776">TB</option></select></div>${B}<div id="R"></div>`,
+    binary:`<div class="f"><label>Number</label><input id="c0" placeholder="e.g. 255 or FF or 11111111"/></div><div class="f"><label>From Base</label><select id="c1"><option value="10" selected>Decimal (10)</option><option value="2">Binary (2)</option><option value="16">Hexadecimal (16)</option><option value="8">Octal (8)</option></select></div>${B}<div id="R"></div>`,
+    bandwidth:`<div class="f"><label>File Size (MB)</label><input id="c0" type="number" placeholder="500"/></div><div class="f"><label>Speed (Mbps)</label><input id="c1" type="number" placeholder="20"/></div>${B}<div id="R"></div>`,
+    uptime:`<div class="f"><label>Total Period (hours)</label><input id="c0" type="number" placeholder="720"/></div><div class="f"><label>Downtime (hours)</label><input id="c1" type="number" placeholder="2"/></div>${B}<div id="R"></div>`,
+    data_usage:`<div class="f"><label>Video Streaming (hrs/day)</label><input id="c0" type="number" value="2"/></div><div class="f"><label>Social Media (hrs/day)</label><input id="c1" type="number" value="1"/></div><div class="f"><label>Web Browsing (hrs/day)</label><input id="c2" type="number" value="2"/></div><div class="f"><label>Video Calls (hrs/day)</label><input id="c3" type="number" value="0.5"/></div>${B}<div id="R"></div>`,
+    electricity:`<div class="f"><label>Units Consumed (kWh/month)</label><input id="c0" type="number" placeholder="150"/></div><div class="f"><label>Rate per unit (₹)</label><input id="c1" type="number" value="6"/></div><div class="f"><label>Fixed Charges (₹)</label><input id="c2" type="number" value="100"/></div>${B}<div id="R"></div>`,
+    age:`<div class="f"><label>Date of Birth</label><input id="c0" type="date"/></div>${B}<div id="R"></div>`,
+    tip:`<div class="f"><label>Bill (₹)</label><input id="c0" type="number" placeholder="1200"/></div><div class="f"><label>Tip (%)</label><input id="c1" type="number" value="10"/></div><div class="f"><label>Split (persons)</label><input id="c2" type="number" value="2"/></div>${B}<div id="R"></div>`,
+    sleep:`<div class="f"><label>Bedtime</label><input id="c0" type="time" value="22:30"/></div>${B}<div id="R"></div>`,
+    grocery:`<div class="info">Format: name,price,qty — one per line</div><div class="f"><textarea id="c0" style="min-height:90px" placeholder="Milk,50,2&#10;Bread,40,1&#10;Eggs,90,1"></textarea></div>${B}<div id="R"></div>`,
+    bmi:`<div class="f"><label>Weight (kg)</label><input id="c0" type="number" step=".1" placeholder="65"/></div><div class="f"><label>Height (cm)</label><input id="c1" type="number" placeholder="170"/></div>${B}<div id="R"></div>`,
+    calorie:`<div class="f"><label>Weight (kg)</label><input id="c0" type="number" placeholder="65"/></div><div class="f"><label>Height (cm)</label><input id="c1" type="number" placeholder="170"/></div><div class="f"><label>Age (years)</label><input id="c2" type="number" placeholder="22"/></div><div class="f"><label>Gender</label><select id="c3"><option value="m">Male</option><option value="f">Female</option></select></div><div class="f"><label>Activity Level</label><select id="c4"><option value="1.2">Sedentary</option><option value="1.375">Lightly Active</option><option value="1.55" selected>Moderately Active</option><option value="1.725">Very Active</option></select></div>${B}<div id="R"></div>`,
+    water_intake:`<div class="f"><label>Weight (kg)</label><input id="c0" type="number" placeholder="65"/></div><div class="f"><label>Activity</label><select id="c1"><option value="1">Sedentary</option><option value="1.2" selected>Moderate</option><option value="1.4">Very Active</option></select></div>${B}<div id="R"></div>`,
+    ideal_weight:`<div class="f"><label>Height (cm)</label><input id="c0" type="number" placeholder="170"/></div>${B}<div id="R"></div>`,
+    heart_rate:`<div class="f"><label>Age (years)</label><input id="c0" type="number" placeholder="25"/></div>${B}<div id="R"></div>`,
+    time_alloc:`<div class="f"><label>Total Hours Available</label><input id="c0" type="number" value="8"/></div><div class="f"><label>Work/Study (%)</label><input id="c1" type="number" value="50"/></div><div class="f"><label>Exercise (%)</label><input id="c2" type="number" value="12"/></div><div class="f"><label>Leisure (%)</label><input id="c3" type="number" value="25"/></div>${B}<div id="R"></div>`,
+    task_priority:`<div class="f"><label>Urgency (1–10)</label><input id="c0" type="number" min="1" max="10" placeholder="8"/></div><div class="f"><label>Importance (1–10)</label><input id="c1" type="number" min="1" max="10" placeholder="7"/></div><div class="f"><label>Effort (1–10)</label><input id="c2" type="number" min="1" max="10" placeholder="5"/></div>${B}<div id="R"></div>`,
+    goal_progress:`<div class="f"><label>Goal Target</label><input id="c0" type="number" placeholder="100"/></div><div class="f"><label>Progress So Far</label><input id="c1" type="number" placeholder="42"/></div><div class="f"><label>Days Given</label><input id="c2" type="number" placeholder="30"/></div><div class="f"><label>Days Elapsed</label><input id="c3" type="number" placeholder="12"/></div>${B}<div id="R"></div>`,
+    workload:`<div class="f"><label>Number of Tasks</label><input id="c0" type="number" placeholder="8"/></div><div class="f"><label>Avg Hours/Task</label><input id="c1" type="number" step=".5" placeholder="1.5"/></div><div class="f"><label>Focus Hours/Day</label><input id="c2" type="number" value="6"/></div>${B}<div id="R"></div>`,
+    productivity_idx:`<div class="f"><label>Tasks Completed</label><input id="c0" type="number" placeholder="7"/></div><div class="f"><label>Tasks Planned</label><input id="c1" type="number" placeholder="10"/></div><div class="f"><label>Focus Hours</label><input id="c2" type="number" step=".5" placeholder="5"/></div><div class="f"><label>Distractions Count</label><input id="c3" type="number" placeholder="4"/></div>${B}<div id="R"></div>`,
+    // HOUSE
+    room_area:`<div class="f"><label>Length</label><input id="c0" type="number" step=".01" placeholder="5"/></div><div class="f"><label>Width</label><input id="c1" type="number" step=".01" placeholder="4"/></div><div class="f"><label>Input Unit</label><select id="c2"><option value="m" selected>metres</option><option value="ft">feet</option><option value="cm">centimetres</option></select></div>${B}<div id="R"></div>`,
+    paint_calc:`<div class="f"><label>Room Length (m)</label><input id="c0" type="number" step=".1" placeholder="5"/></div><div class="f"><label>Room Width (m)</label><input id="c1" type="number" step=".1" placeholder="4"/></div><div class="f"><label>Wall Height (m)</label><input id="c2" type="number" step=".1" placeholder="3"/></div><div class="f"><label>Doors & Windows (count)</label><input id="c3" type="number" value="2"/></div><div class="f"><label>Coats of Paint</label><input id="c4" type="number" value="2"/></div>${B}<div id="R"></div>`,
+    flooring:`<div class="f"><label>Room Length (m)</label><input id="c0" type="number" step=".1" placeholder="5"/></div><div class="f"><label>Room Width (m)</label><input id="c1" type="number" step=".1" placeholder="4"/></div><div class="f"><label>Tile Size</label><select id="c2"><option value="0.09">30×30 cm</option><option value="0.16">40×40 cm</option><option value="0.25" selected>50×50 cm</option><option value="0.36">60×60 cm</option></select></div><div class="f"><label>Price per tile (₹)</label><input id="c3" type="number" placeholder="80"/></div>${B}<div id="R"></div>`,
+    sqft_sqm:`<div class="f"><label>Value</label><input id="c0" type="number" placeholder="1000"/></div><div class="f"><label>From Unit</label><select id="c1"><option value="sqft" selected>sq ft</option><option value="sqm">sq m</option><option value="sqyd">sq yard</option><option value="acre">acres</option><option value="guntha">guntha</option><option value="bigha">bigha</option></select></div>${B}<div id="R"></div>`,
+    volume_box:`<div class="f"><label>Shape</label><select id="c0"><option value="box" selected>Cuboid/Box/Tank</option><option value="cyl">Cylinder (Round Tank)</option><option value="sphere">Sphere/Ball</option><option value="cone">Cone</option></select></div><div class="f"><label>Length or Radius (m)</label><input id="c1" type="number" step=".01" placeholder="2"/></div><div class="f"><label>Width (m, box only)</label><input id="c2" type="number" step=".01" placeholder="1.5"/></div><div class="f"><label>Height or Length (m)</label><input id="c3" type="number" step=".01" placeholder="1"/></div>${B}<div id="R"></div>`,
+    wall_area:`<div class="f"><label>Room Length (m)</label><input id="c0" type="number" step=".1" placeholder="5"/></div><div class="f"><label>Room Width (m)</label><input id="c1" type="number" step=".1" placeholder="4"/></div><div class="f"><label>Wall Height (m)</label><input id="c2" type="number" step=".1" placeholder="3"/></div><div class="f"><label>Windows (each ~1.5 m²)</label><input id="c3" type="number" value="2"/></div><div class="f"><label>Doors (each ~1.8 m²)</label><input id="c4" type="number" value="1"/></div>${B}<div id="R"></div>`,
+    plot_area:`<div class="f"><label>Value</label><input id="c0" type="number" placeholder="2400"/></div><div class="f"><label>From Unit</label><select id="c1"><option value="sqft" selected>sq ft</option><option value="sqm">sq m</option><option value="sqyd">sq yard</option><option value="acre">acres</option><option value="guntha">guntha</option><option value="bigha">bigha</option></select></div>${B}<div id="R"></div>`,
+    // CS & BINARY
+    ones_comp:`<div class="info">Flip every bit: 0→1, 1→0</div><div class="f"><label>Binary Number</label><input id="c0" placeholder="e.g. 10110010"/></div>${B}<div id="R"></div>`,
+    twos_comp:`<div class="info">2's complement = 1's complement + 1 (used by all modern processors)</div><div class="f"><label>Binary Number</label><input id="c0" placeholder="e.g. 10110010"/></div>${B}<div id="R"></div>`,
+    nines_comp:`<div class="info">9's complement: replace each digit d with (9 - d)</div><div class="f"><label>Decimal Number</label><input id="c0" placeholder="e.g. 5720"/></div>${B}<div id="R"></div>`,
+    tens_comp:`<div class="info">10's complement = 9's complement + 1 (used for decimal subtraction)</div><div class="f"><label>Decimal Number</label><input id="c0" placeholder="e.g. 5720"/></div>${B}<div id="R"></div>`,
+    base_conv:`<div class="f"><label>Number</label><input id="c0" placeholder="e.g. 255 or FF"/></div><div class="f"><label>From Base</label><select id="c1"><option value="10" selected>Decimal (10)</option><option value="2">Binary (2)</option><option value="8">Octal (8)</option><option value="16">Hexadecimal (16)</option></select></div>${B}<div id="R"></div>`,
+    ieee754:`<div class="info">IEEE 754 single precision (32-bit): sign(1) + exponent(8) + mantissa(23)</div><div class="f"><label>Decimal Number</label><input id="c0" type="number" step="any" placeholder="e.g. 3.14"/></div>${B}<div id="R"></div>`,
+    data_types:`<div class="info">C/C++/Java data type memory sizes and value ranges</div><div class="f"><label>Data Type</label><select id="c0"><option value="bool">bool — 1 bit</option><option value="char">char — 8 bit</option><option value="short">short — 16 bit</option><option value="int" selected>int — 32 bit</option><option value="long">long — 64 bit</option><option value="float">float — 32 bit IEEE754</option><option value="double">double — 64 bit</option></select></div>${B}<div id="R"></div>`,
+    bits_bytes:`<div class="f"><label>Value</label><input id="c0" type="number" placeholder="1024"/></div><div class="f"><label>From Unit</label><select id="c1"><option value="bit">bit</option><option value="B" selected>Byte (B)</option><option value="KB">KB (Kilobyte)</option><option value="MB">MB (Megabyte)</option><option value="GB">GB (Gigabyte)</option><option value="TB">TB (Terabyte)</option><option value="PB">PB (Petabyte)</option></select></div>${B}<div id="R"></div>`,
+    // DATE & TIME
+    date_diff:`<div class="f"><label>Start Date</label><input id="c0" type="date"/></div><div class="f"><label>End Date</label><input id="c1" type="date"/></div>${B}<div id="R"></div>`,
+    time_calc:`<div class="f"><label>Time 1 (HH:MM:SS)</label><input id="c0" placeholder="09:30:00"/></div><div class="f"><label>Time 2 (HH:MM:SS)</label><input id="c1" placeholder="17:45:30"/></div><div class="f"><label>Operation</label><select id="c2"><option value="diff">Difference (T2 - T1)</option><option value="add">Add (T1 + T2)</option></select></div>${B}<div id="R"></div>`,
+    day_of_week:`<div class="f"><label>Enter a Date</label><input id="c0" type="date"/></div>${B}<div id="R"></div>`,
+    unix_time:`<div class="f"><label>Date & Time (→ Unix)</label><input id="c0" type="datetime-local"/></div><div class="f"><label>OR Unix Timestamp (→ Date)</label><input id="c1" type="number" placeholder="e.g. 1700000000"/></div>${B}<div id="R"></div>`,
+    timezone:`<div class="f"><label>Date & Time</label><input id="c0" type="datetime-local"/></div><div class="f"><label>From UTC offset (e.g. 5.5 for IST)</label><input id="c1" type="number" step=".5" value="5.5"/></div><div class="f"><label>To UTC offset</label><input id="c2" type="number" step=".5" value="0"/></div>${B}<div id="R"></div>`,
+    // CONVERTERS
+    length:`<div class="f"><label>Value</label><input id="c0" type="number" placeholder="100"/></div><div class="f"><label>From</label><select id="c1"><option value="mm">mm</option><option value="cm">cm</option><option value="m" selected>m</option><option value="km">km</option><option value="in">inch</option><option value="ft">feet</option><option value="yd">yard</option><option value="mi">mile</option></select></div>${B}<div id="R"></div>`,
+    weight_conv:`<div class="f"><label>Value</label><input id="c0" type="number" placeholder="70"/></div><div class="f"><label>From</label><select id="c1"><option value="kg" selected>kg</option><option value="g">g</option><option value="mg">mg</option><option value="lb">lb</option><option value="oz">oz</option><option value="tonne">tonne</option></select></div>${B}<div id="R"></div>`,
+    temperature:`<div class="f"><label>Value</label><input id="c0" type="number" placeholder="100"/></div><div class="f"><label>From</label><select id="c1"><option value="C" selected>°C</option><option value="F">°F</option><option value="K">Kelvin</option></select></div>${B}<div id="R"></div>`,
+    speed:`<div class="f"><label>Value</label><input id="c0" type="number" placeholder="60"/></div><div class="f"><label>From</label><select id="c1"><option value="kmh" selected>km/h</option><option value="ms">m/s</option><option value="mph">mph</option><option value="kn">knots</option><option value="mach">Mach</option></select></div>${B}<div id="R"></div>`,
+    area:`<div class="f"><label>Value</label><input id="c0" type="number" placeholder="500"/></div><div class="f"><label>From</label><select id="c1"><option value="m2" selected>m²</option><option value="ft2">ft²</option><option value="cm2">cm²</option><option value="acre">acres</option><option value="ha">hectares</option><option value="km2">km²</option></select></div>${B}<div id="R"></div>`,
+    liquid:`<div class="f"><label>Value</label><input id="c0" type="number" placeholder="1"/></div><div class="f"><label>From</label><select id="c1"><option value="L" selected>Litres (L)</option><option value="mL">mL</option><option value="gal_us">Gallons (US)</option><option value="gal_uk">Gallons (UK)</option><option value="floz">fl oz</option><option value="cup">cups</option><option value="pint">pints</option><option value="qt">quarts</option><option value="tsp">teaspoon</option><option value="tbsp">tablespoon</option></select></div>${B}<div id="R"></div>`,
+    pressure:`<div class="f"><label>Value</label><input id="c0" type="number" placeholder="101325"/></div><div class="f"><label>From</label><select id="c1"><option value="Pa" selected>Pascal (Pa)</option><option value="kPa">kPa</option><option value="MPa">MPa</option><option value="bar">bar</option><option value="psi">psi</option><option value="atm">atm</option><option value="mmHg">mmHg</option></select></div>${B}<div id="R"></div>`,
+    energy_conv:`<div class="f"><label>Value</label><input id="c0" type="number" placeholder="1000"/></div><div class="f"><label>From</label><select id="c1"><option value="J" selected>Joules (J)</option><option value="kJ">kJ</option><option value="cal">calories (cal)</option><option value="kcal">kcal (food Cal)</option><option value="kWh">kWh</option><option value="eV">eV</option></select></div>${B}<div id="R"></div>`,
+    memory:`<div class="f"><label>Value</label><input id="c0" type="number" placeholder="1024"/></div><div class="f"><label>From</label><select id="c1"><option value="bit">bit</option><option value="B">Byte (B)</option><option value="KB" selected>Kilobyte (KB)</option><option value="MB">Megabyte (MB)</option><option value="GB">Gigabyte (GB)</option><option value="TB">Terabyte (TB)</option><option value="PB">Petabyte (PB)</option><option value="EB">Exabyte (EB)</option></select></div>${B}<div id="R"></div>`,
+    angle:`<div class="f"><label>Value</label><input id="c0" type="number" placeholder="90"/></div><div class="f"><label>From</label><select id="c1"><option value="deg" selected>Degrees (°)</option><option value="rad">Radians</option><option value="grad">Gradians</option><option value="turn">Turns</option></select></div>${B}<div id="R"></div>`,
+    // EQUATION
+    linear_eq:`<div class="info">y = mx + c  ▸  Enter slope m, intercept c, then solve for x or y</div><div class="f"><label>Slope m</label><input id="c0" type="number" step="any" placeholder="2"/></div><div class="f"><label>Intercept c</label><input id="c1" type="number" step="any" placeholder="3"/></div><div class="f"><label>Find y when x =</label><input id="c2" type="number" step="any" placeholder="5"/></div><div class="f"><label>OR find x when y =</label><input id="c3" type="number" step="any" placeholder=""/></div>${B}<div id="R"></div>`,
+    xy_table:`<div class="info">Enter formula using x as variable. e.g: 2*x+5 or x*x-3*x+1</div><div class="f"><label>Formula f(x)</label><input id="c0" placeholder="2*x+5"/></div><div class="f"><label>x starts at</label><input id="c1" type="number" placeholder="-5"/></div><div class="f"><label>x ends at</label><input id="c2" type="number" placeholder="5"/></div><div class="f"><label>Step</label><input id="c3" type="number" step="any" value="1"/></div>${B}<div id="R"></div>`,
+    ratio_prop:`<div class="info">If x = A then y = B. Given new x, find new y (direct proportion)</div><div class="f"><label>Known x (A)</label><input id="c0" type="number" step="any" placeholder="4"/></div><div class="f"><label>Known y (B)</label><input id="c1" type="number" step="any" placeholder="10"/></div><div class="f"><label>Find y when x =</label><input id="c2" type="number" step="any" placeholder="7"/></div>${B}<div id="R"></div>`,
+    percentage_eq:`<div class="f"><label>Mode</label><select id="c0"><option value="of">Find X% of Y</option><option value="is">X is what % of Y?</option><option value="inc">Increase X by Y%</option><option value="dec">Decrease X by Y%</option></select></div><div class="f"><label>X</label><input id="c1" type="number" step="any" placeholder="20"/></div><div class="f"><label>Y</label><input id="c2" type="number" step="any" placeholder="500"/></div>${B}<div id="R"></div>`,
+    // SOUND
+    freq_wave:`<div class="info">λ = v ÷ f   ▸  Leave one field empty to calculate it</div><div class="f"><label>Frequency f (Hz) — leave blank to calculate</label><input id="c0" type="number" step="any" placeholder="440"/></div><div class="f"><label>Wavelength λ (m) — leave blank to calculate</label><input id="c1" type="number" step="any" placeholder=""/></div><div class="f"><label>Wave Speed v (m/s, default 343 for sound in air)</label><input id="c2" type="number" step="any" value="343"/></div>${B}<div id="R"></div>`,
+    db_calc:`<div class="info">dB = 10 × log₁₀(I / I₀)   where I₀ = 10⁻¹² W/m²</div><div class="f"><label>Sound Intensity I (W/m²)</label><input id="c0" type="number" step="any" placeholder="e.g. 0.000001"/></div>${B}<div id="R"></div>`,
+    note_freq:`<div class="info">A4 = 440 Hz. Each semitone = ×2^(1/12)</div><div class="f"><label>Note</label><select id="c0"><option>C</option><option>C#/Db</option><option>D</option><option>D#/Eb</option><option>E</option><option>F</option><option>F#/Gb</option><option>G</option><option>G#/Ab</option><option>A</option><option>A#/Bb</option><option>B</option></select></div><div class="f"><label>Octave (4 = middle octave, A4=440Hz)</label><input id="c1" type="number" min="0" max="8" value="4"/></div>${B}<div id="R"></div>`,
+    sound_dist:`<div class="f"><label>Time elapsed (seconds)</label><input id="c0" type="number" step="any" placeholder="2.5"/></div><div class="f"><label>Speed of sound (m/s)</label><input id="c1" type="number" value="343"/></div>${B}<div id="R"></div>`,
+    doppler:`<div class="info">f_obs = f_s × (v + v_obs) / (v − v_src)   (+= approaching)</div><div class="f"><label>Source Frequency f_s (Hz)</label><input id="c0" type="number" placeholder="440"/></div><div class="f"><label>Speed of Sound v (m/s)</label><input id="c1" type="number" value="343"/></div><div class="f"><label>Source velocity v_src (m/s, + = moving toward you)</label><input id="c2" type="number" value="0"/></div><div class="f"><label>Observer velocity v_obs (m/s, + = moving toward source)</label><input id="c3" type="number" value="0"/></div>${B}<div id="R"></div>`,
+    // ALPHABET & TEXT
+    letter_pos:`<div class="info">A=1, B=2, C=3 … Z=26. Enter any letter or word.</div><div class="f"><label>Letter or Word</label><input id="c0" placeholder="e.g. D or HELLO"/></div>${B}<div id="R"></div>`,
+    letter_range:`<div class="info">Example: D=4, Z=26 → lists all letters between D and Z with positions</div><div class="f"><label>Start Letter (e.g. D)</label><input id="c0" placeholder="D" maxlength="1"/></div><div class="f"><label>End Letter (e.g. Z)</label><input id="c1" placeholder="Z" maxlength="1"/></div>${B}<div id="R"></div>`,
+    word_value:`<div class="info">Sum of letter positions in a word (A=1, B=2 … Z=26)</div><div class="f"><label>Word or Phrase</label><input id="c0" placeholder="HELLO WORLD"/></div>${B}<div id="R"></div>`,
+    caesar:`<div class="f"><label>Text to encode/decode</label><input id="c0" placeholder="HELLO WORLD"/></div><div class="f"><label>Shift (1–25)</label><input id="c1" type="number" min="1" max="25" value="3"/></div><div class="f"><label>Mode</label><select id="c2"><option value="enc">Encrypt</option><option value="dec">Decrypt</option></select></div>${B}<div id="R"></div>`,
+    text_stats:`<div class="f"><label>Enter Text</label><textarea id="c0" placeholder="Type or paste text here…"></textarea></div>${B}<div id="R"></div>`,
+    // SCIENCE
+    force:`<div class="info">F = m × a  ▸  Leave one field blank to solve for it</div><div class="f"><label>Force F (N) — leave blank to calculate</label><input id="c0" type="number" step="any" placeholder=""/></div><div class="f"><label>Mass m (kg)</label><input id="c1" type="number" step="any" placeholder="10"/></div><div class="f"><label>Acceleration a (m/s²)</label><input id="c2" type="number" step="any" placeholder="9.8"/></div>${B}<div id="R"></div>`,
+    kinetic_energy:`<div class="info">KE = ½ × m × v²</div><div class="f"><label>Mass m (kg)</label><input id="c0" type="number" step="any" placeholder="5"/></div><div class="f"><label>Velocity v (m/s)</label><input id="c1" type="number" step="any" placeholder="10"/></div>${B}<div id="R"></div>`,
+    ohms_law:`<div class="info">V = I × R  ▸  Leave one blank to solve for it</div><div class="f"><label>Voltage V (Volts) — blank to calculate</label><input id="c0" type="number" step="any" placeholder=""/></div><div class="f"><label>Current I (Amperes)</label><input id="c1" type="number" step="any" placeholder="2"/></div><div class="f"><label>Resistance R (Ohms)</label><input id="c2" type="number" step="any" placeholder="50"/></div>${B}<div id="R"></div>`,
+    molarity:`<div class="info">M = moles of solute ÷ volume of solution (in Litres)</div><div class="f"><label>Moles of Solute (mol)</label><input id="c0" type="number" step="any" placeholder="0.5"/></div><div class="f"><label>Volume of Solution (L)</label><input id="c1" type="number" step="any" placeholder="2"/></div>${B}<div id="R"></div>`,
+    ph_calc:`<div class="info">pH = −log₁₀[H⁺]   |   pOH = −log₁₀[OH⁻]   |   pH + pOH = 14</div><div class="f"><label>Mode</label><select id="c0"><option value="h">From [H⁺] concentration (mol/L)</option><option value="oh">From [OH⁻] concentration (mol/L)</option><option value="ph">From pH — find [H⁺]</option></select></div><div class="f"><label>Value</label><input id="c1" type="number" step="any" placeholder="e.g. 0.001 or 7"/></div>${B}<div id="R"></div>`,
+    half_life:`<div class="info">N = N₀ × (½)^(t / t½)</div><div class="f"><label>Initial Amount N₀</label><input id="c0" type="number" step="any" placeholder="100"/></div><div class="f"><label>Half-life t½ (any unit)</label><input id="c1" type="number" step="any" placeholder="5"/></div><div class="f"><label>Time elapsed t (same unit)</label><input id="c2" type="number" step="any" placeholder="15"/></div>${B}<div id="R"></div>`,
+    ideal_gas:`<div class="info">PV = nRT  ▸  R = 8.314 J/(mol·K)</div><div class="f"><label>Pressure P (Pa) — blank to calculate</label><input id="c0" type="number" step="any" placeholder=""/></div><div class="f"><label>Volume V (m³)</label><input id="c1" type="number" step="any" placeholder="0.01"/></div><div class="f"><label>Moles n (mol)</label><input id="c2" type="number" step="any" placeholder="1"/></div><div class="f"><label>Temperature T (K)</label><input id="c3" type="number" step="any" placeholder="298"/></div>${B}<div id="R"></div>`,
+    dilution:`<div class="info">C₁V₁ = C₂V₂  ▸  Leave one field blank to solve for it</div><div class="f"><label>Initial Concentration C₁ (M)</label><input id="c0" type="number" step="any" placeholder="2"/></div><div class="f"><label>Initial Volume V₁ (L)</label><input id="c1" type="number" step="any" placeholder="0.1"/></div><div class="f"><label>Final Concentration C₂ (M) — blank to calculate</label><input id="c2" type="number" step="any" placeholder=""/></div><div class="f"><label>Final Volume V₂ (L)</label><input id="c3" type="number" step="any" placeholder="0.4"/></div>${B}<div id="R"></div>`,
+  };
+  return M[id]||`<p style="color:var(--muted)">Coming soon!</p>`;
+}
+
+// ===================== CALCULATION LOGIC =====================
+function g(id){const el=document.getElementById(id);return el?el.value:'';}
+function r(rows){
+  const el=document.getElementById('R');if(!el) return;
+  el.innerHTML=`<div class="rb">${rows.map(row=>`<div class="rr ${row.big?'big':''} ${row.red?'red':''} ${row.green?'green':''} ${row.blue?'blue':''}"><span class="rl">${row.l}</span><span class="rv">${row.v}</span></div>`).join('')}</div>`;
+}
+
+const FN={
+  cgpa(){const c=+g('c0');if(!c)return;r([{l:'% (×9.5)',v:(c*9.5).toFixed(2)+'%',big:1},{l:'% (×10)',v:(c*10).toFixed(2)+'%'},{l:'Grade',v:c>=9?'O':c>=8.5?'A+':c>=7.5?'A':c>=6.5?'B+':c>=5.5?'B':'C'}])},
+  attendance(){const t=+g('c0'),a=+g('c1');if(!t||!a)return;const p=(a/t*100);const needed=p<75?Math.ceil((.75*t-a)/.25):0;const bunk=p>=75?Math.floor((a-.75*t)/.75):0;r([{l:'Attendance',v:p.toFixed(1)+'%',big:1},{l:'Status',v:p>=75?'✅ Safe':p>=60?'⚠️ At Risk':'❌ Shortage',red:p<60,green:p>=75},{l:p<75?'Need':'Can Skip',v:p<75?needed+' classes':bunk+' classes'}])},
+  spi(){const crs=g('c0').split(',').map(Number),gps=g('c1').split(',').map(Number);if(crs.some(isNaN)||gps.some(isNaN)||crs.length!==gps.length)return;const tc=crs.reduce((a,b)=>a+b,0),w=crs.reduce((a,c,i)=>a+c*gps[i],0);const s=(w/tc).toFixed(2);r([{l:'SPI/CPI',v:s,big:1},{l:'Credits',v:tc},{l:'Approx %',v:(s*9.5).toFixed(1)+'%'}])},
+  grade_target(){const cm=+g('c0'),sm=+g('c1'),rm=+g('c2'),tp=+g('c3');if(!cm||!sm||!rm||!tp)return;const need=Math.ceil((tp/100*(sm+rm))-cm);r([{l:'Need in Remaining',v:need+' / '+rm,big:1},{l:'Achievable?',v:need<=rm&&need>=0?'✅ Yes':'❌ Not Possible',red:need>rm||need<0}])},
+  exam_countdown(){const d=g('c0');if(!d)return;const diff=Math.ceil((new Date(d)-new Date())/864e5);r([{l:'Days Remaining',v:diff>0?diff+' days':'Exam Passed!',big:1},{l:'Weeks',v:diff>0?Math.floor(diff/7)+'w '+diff%7+'d':'—'}])},
+  study_time(){const ns=+g('c0'),chs=+g('c1'),hpc=+g('c2');if(!ns||!chs||!hpc)return;const tot=ns*chs*hpc;r([{l:'Total Hours',v:tot+' hrs',big:1},{l:'@ 6h/day',v:Math.ceil(tot/6)+' days'},{l:'@ 8h/day',v:Math.ceil(tot/8)+' days'}])},
+  percentage(){const v=+g('c0'),t=+g('c1');if(!t)return;r([{l:'Percentage',v:(v/t*100).toFixed(2)+'%',big:1},{l:'Remaining',v:((1-v/t)*100).toFixed(2)+'%'}])},
+  quadratic(){const a=+g('c0'),b=+g('c1'),c=+g('c2');if(!a)return;const D=b*b-4*a*c;if(D<0){r([{l:'Discriminant',v:D.toFixed(2)},{l:'Roots',v:'Complex (No Real Roots)',red:1}])}else{r([{l:'Discriminant',v:D.toFixed(2)},{l:'Root 1',v:((-b+Math.sqrt(D))/(2*a)).toFixed(4),big:1},{l:'Root 2',v:((-b-Math.sqrt(D))/(2*a)).toFixed(4)}])}},
+  gcd_lcm(){const a=+g('c0'),b=+g('c1');if(!a||!b)return;const gcd=(x,y)=>y===0?x:gcd(y,x%y);const G=gcd(Math.abs(a),Math.abs(b));r([{l:'GCD',v:G,big:1},{l:'LCM',v:a*b/G}])},
+  probability(){const f=+g('c0'),o=+g('c1');if(!o)return;const p=f/o;r([{l:'Probability',v:p.toFixed(4),big:1},{l:'As %',v:(p*100).toFixed(2)+'%'},{l:'Odds',v:f+' : '+(o-f)}])},
+  factorial(){const n=+g('c0'),rv=g('c1');const fc=x=>x<=1?1:x*fc(x-1);const nf=fc(n);const rows=[{l:'n!',v:nf,big:1}];if(rv!==''){const r2=+rv;rows.push({l:`${n}C${r2}`,v:nf/(fc(r2)*fc(n-r2))},{l:`${n}P${r2}`,v:nf/fc(n-r2)})}r(rows)},
+  stddev(){const nums=g('c0').split(',').map(Number).filter(n=>!isNaN(n));if(nums.length<2)return;const mean=nums.reduce((a,b)=>a+b,0)/nums.length;const v=nums.reduce((a,b)=>a+Math.pow(b-mean,2),0)/nums.length;r([{l:'Count',v:nums.length},{l:'Mean',v:mean.toFixed(4),big:1},{l:'Std Dev',v:Math.sqrt(v).toFixed(4)},{l:'Variance',v:v.toFixed(4)}])},
+  emi(){const p=+g('c0'),rt=+g('c1')/1200,n=+g('c2');if(!p||!rt||!n)return;const e=(p*rt*Math.pow(1+rt,n))/(Math.pow(1+rt,n)-1),t=e*n;r([{l:'Monthly EMI',v:'₹'+e.toFixed(0),big:1},{l:'Total Interest',v:'₹'+(t-p).toFixed(0),red:1},{l:'Total Payment',v:'₹'+t.toFixed(0)}])},
+  compound(){const p=+g('c0'),rt=+g('c1'),t=+g('c2'),n=+g('c3');if(!p||!rt||!t)return;const a=p*Math.pow(1+rt/(100*n),n*t);r([{l:'Final Amount',v:'₹'+a.toFixed(2),big:1},{l:'Principal',v:'₹'+p},{l:'Interest Earned',v:'₹'+(a-p).toFixed(2)}])},
+  tax(){const inc=+g('c0');if(!inc)return;let tax=0;if(inc>1500000)tax=150000+(inc-1500000)*.3;else if(inc>1200000)tax=90000+(inc-1200000)*.2;else if(inc>900000)tax=60000+(inc-900000)*.15;else if(inc>600000)tax=30000+(inc-600000)*.1;else if(inc>300000)tax=(inc-300000)*.05;const cess=tax*.04;r([{l:'Tax',v:'₹'+tax.toFixed(0),big:1},{l:'Cess 4%',v:'₹'+cess.toFixed(0)},{l:'Total Tax',v:'₹'+(tax+cess).toFixed(0),red:1},{l:'Take-home',v:'₹'+(inc-tax-cess).toFixed(0),green:1}])},
+  profit_loss(){const cp=+g('c0'),sp=+g('c1');if(!cp||!sp)return;const d=sp-cp;r([{l:d>=0?'Profit':'Loss',v:'₹'+Math.abs(d).toFixed(2),big:1},{l:'%',v:Math.abs(d/cp*100).toFixed(2)+'%'},{l:'Status',v:d>=0?'✅ Profit':'❌ Loss',red:d<0,green:d>=0}])},
+  sip(){const m=+g('c0'),rt=+g('c1')/1200,n=+g('c2')*12;if(!m||!rt||!n)return;const mat=m*((Math.pow(1+rt,n)-1)/rt)*(1+rt),inv=m*n;r([{l:'Invested',v:'₹'+inv.toLocaleString('en-IN')},{l:'Maturity',v:'₹'+Math.round(mat).toLocaleString('en-IN'),big:1},{l:'Returns',v:'₹'+Math.round(mat-inv).toLocaleString('en-IN'),green:1}])},
+  salary_tax(){const gs=+g('c0'),std=+g('c1');if(!gs)return;const taxable=Math.max(0,gs-std);let tax=0;if(taxable>1500000)tax=150000+(taxable-1500000)*.3;else if(taxable>1200000)tax=90000+(taxable-1200000)*.2;else if(taxable>900000)tax=60000+(taxable-900000)*.15;else if(taxable>600000)tax=30000+(taxable-600000)*.1;else if(taxable>300000)tax=(taxable-300000)*.05;const cess=tax*.04,net=gs-tax-cess;r([{l:'Tax+Cess',v:'₹'+(tax+cess).toFixed(0),red:1},{l:'Monthly Take-home',v:'₹'+(net/12).toFixed(0),big:1}])},
+  discount(){const p=+g('c0'),d=+g('c1');if(!p)return;const s=p*d/100;r([{l:'You Save',v:'₹'+s.toFixed(2),big:1},{l:'Final Price',v:'₹'+(p-s).toFixed(2)},{l:'Discount',v:d+'%'}])},
+  multi_discount(){const p=+g('c0'),d1=+g('c1'),d2=+g('c2');if(!p)return;const a1=p*(1-d1/100),a2=a1*(1-d2/100);r([{l:'After 1st Disc',v:'₹'+a1.toFixed(2)},{l:'Final Price',v:'₹'+a2.toFixed(2),big:1},{l:'Total Saved',v:'₹'+(p-a2).toFixed(2)},{l:'Effective %',v:((p-a2)/p*100).toFixed(2)+'%'}])},
+  gst(){const a=+g('c0'),rt=+g('c1'),m=g('c2');if(!a)return;if(m==='add'){const gv=a*rt/100;r([{l:'Base',v:'₹'+a.toFixed(2)},{l:'GST('+rt+'%)',v:'₹'+gv.toFixed(2),big:1},{l:'Total',v:'₹'+(a+gv).toFixed(2)}])}else{const base=a/(1+rt/100),gv=a-base;r([{l:'Base (ex-GST)',v:'₹'+base.toFixed(2),big:1},{l:'GST('+rt+'%)',v:'₹'+gv.toFixed(2)},{l:'Incl. Price',v:'₹'+a.toFixed(2)}])}},
+  unit_price(){const p1=+g('c0'),q1=+g('c1'),p2=+g('c2'),q2=+g('c3'),u=g('c4');if(!p1||!q1||!p2||!q2)return;const uA=p1/q1,uB=p2/q2;r([{l:'A: ₹/'+u,v:'₹'+uA.toFixed(4)},{l:'B: ₹/'+u,v:'₹'+uB.toFixed(4)},{l:'Better Value',v:uA<=uB?'✅ Product A (cheaper/unit)':'✅ Product B (cheaper/unit)',big:1},{l:'Savings/unit',v:'₹'+Math.abs(uA-uB).toFixed(4)}])},
+  cashback(){const p=+g('c0'),rt=+g('c1'),cap=+g('c2');if(!p)return;let cb=p*rt/100;if(cap>0) cb=Math.min(cb,cap);r([{l:'Cashback',v:'₹'+cb.toFixed(2),big:1},{l:'Net Price',v:'₹'+(p-cb).toFixed(2)},{l:'Effective %',v:(cb/p*100).toFixed(2)+'%'}])},
+  price_drop(){const cur=+g('c0'),prev=+g('c1'),bud=+g('c2'),cat=g('c3');if(!cur||!prev)return;const drop=prev-cur,pct=(drop/prev*100),isDown=drop>0;const thr={electronics:15,fashion:25,grocery:8,appliance:12,book:10,other:10}[cat]||10;const great=isDown&&pct>=thr*1.8,good=isDown&&pct>=thr;let verdict,vc;if(!isDown){verdict='📈 Price Increased — Wait';vc='#ef4444';}else if(great){verdict='🔥 Great Deal — Buy Now!';vc='#10b981';}else if(good){verdict='✅ Good Deal';vc='#10b981';}else{verdict='⚠️ Marginal — Wait a bit';vc='#f59e0b';}const rows=[{l:'Change',v:(isDown?'↓ ':'↑ ')+Math.abs(pct).toFixed(1)+'%',big:1,red:!isDown,green:isDown&&good},{l:'Savings',v:isDown?'₹'+drop.toFixed(0):'—'},{l:'Verdict',v:verdict}];if(bud) rows.push({l:'Budget Check',v:cur<=bud?'✅ Within Budget':'❌ Over by ₹'+(cur-bud).toFixed(0),red:cur>bud,green:cur<=bud});const el=document.getElementById('R');el.innerHTML=`<div class="rb">${rows.map(row=>`<div class="rr ${row.big?'big':''} ${row.red?'red':''} ${row.green?'green':''}"><span class="rl">${row.l}</span><span class="rv" style="${row.l==='Verdict'?'color:'+vc:''}">${row.v}</span></div>`).join('')}</div>`;},
+  fuel(){const km=+g('c0'),ml=+g('c1'),pr=+g('c2');if(!km||!ml||!pr)return;const d=(km/ml)*pr;r([{l:'Daily Cost',v:'₹'+d.toFixed(2),big:1},{l:'Monthly (30d)',v:'₹'+(d*30).toFixed(0)},{l:'Yearly',v:'₹'+(d*365).toFixed(0)},{l:'L/day',v:(km/ml).toFixed(2)+' L'}])},
+  round_trip(){const d=+g('c0'),m=+g('c1'),p=+g('c2');if(!d||!m||!p)return;r([{l:'Distance',v:d*2+' km'},{l:'Fuel Needed',v:(d*2/m).toFixed(2)+' L'},{l:'Total Cost',v:'₹'+((d*2/m)*p).toFixed(2),big:1}])},
+  cost_per_km(){const d=+g('c0'),f=+g('c1'),p=+g('c2');if(!d||!f||!p)return;r([{l:'Cost/km',v:'₹'+((f*p)/d).toFixed(2),big:1},{l:'Mileage',v:(d/f).toFixed(1)+' km/L'}])},
+  ev_comparison(){const d=+g('c0'),pm=+g('c1'),pp=+g('c2'),em=+g('c3'),ep=+g('c4');if(!d||!pm||!pp||!em||!ep)return;const petrol=(d/pm)*pp,ev=(d/em)*ep;r([{l:'Petrol/month',v:'₹'+petrol.toFixed(0)},{l:'EV/month',v:'₹'+ev.toFixed(0)},{l:'EV Saves/month',v:'₹'+(petrol-ev).toFixed(0),big:1},{l:'EV Saves/year',v:'₹'+((petrol-ev)*12).toFixed(0)}])},
+  trip_budget(){const d=+g('c0'),f=+g('c1'),h=+g('c2'),n=+g('c3'),fo=+g('c4'),m=+g('c5');const fuel=d*f,hotel=h*n,food=fo*(n+1),total=fuel+hotel+food+m;r([{l:'Fuel',v:'₹'+fuel.toFixed(0)},{l:'Hotel',v:'₹'+hotel.toFixed(0)},{l:'Food',v:'₹'+food.toFixed(0)},{l:'Misc',v:'₹'+m.toFixed(0)},{l:'Total Budget',v:'₹'+total.toFixed(0),big:1}])},
+  currency_tax(){const a=+g('c0'),ex=+g('c1'),fee=+g('c2'),tax=+g('c3');if(!a||!ex)return;const conv=a*ex,feeA=conv*fee/100,taxA=(conv-feeA)*tax/100,final=conv-feeA-taxA;r([{l:'Converted',v:'₹'+conv.toFixed(0)},{l:'Fee −',v:'₹'+feeA.toFixed(0),red:1},{l:'Tax −',v:'₹'+taxA.toFixed(0),red:1},{l:'Final Amount',v:'₹'+final.toFixed(0),big:1}])},
+  hourly_income(){const hr=+g('c0'),hd=+g('c1'),wd=+g('c2'),ex=+g('c3'),tx=+g('c4'),pf=+g('c5');if(!hr)return;const d=hr*hd,m=d*wd,inr=m*ex,final=inr*(1-tx/100)*(1-pf/100);r([{l:'Daily ($)',v:'$'+d.toFixed(0)},{l:'Monthly ($)',v:'$'+m.toFixed(0)},{l:'Gross ₹',v:'₹'+inr.toFixed(0)},{l:'After Tax & Fees',v:'₹'+final.toFixed(0),big:1}])},
+  paypal_fee(){const a=+g('c0'),fr=+g('c1'),ff=+g('c2');if(!a)return;const fee=a*fr/100+ff;r([{l:'Fee',v:'$'+fee.toFixed(2),big:1},{l:'You Receive',v:'$'+(a-fee).toFixed(2)}])},
+  fiverr_income(){const v=+g('c0'),ex=+g('c1');if(!v||!ex)return;r([{l:'Commission 20%',v:'−$'+(v*.2).toFixed(2),red:1},{l:'Earnings ($)',v:'$'+(v*.8).toFixed(2)},{l:'Earnings ₹',v:'₹'+(v*.8*ex).toFixed(0),big:1}])},
+  import_duty(){const v=+g('c0'),dr=+g('c1'),ig=+g('c2');if(!v)return;const basic=v*dr/100,igst=(v+basic)*ig/100,total=basic+igst;r([{l:'Basic Duty',v:'₹'+basic.toFixed(0)},{l:'IGST',v:'₹'+igst.toFixed(0)},{l:'Total Duty',v:'₹'+total.toFixed(0),big:1},{l:'Total Cost',v:'₹'+(v+total).toFixed(0)}])},
+  storage(){const v=+g('c0'),f=+g('c1');if(!v)return;const b=v*f;r([{l:'Bytes',v:b.toLocaleString()},{l:'KB',v:(b/1024).toFixed(2)},{l:'MB',v:(b/1048576).toFixed(4)},{l:'GB',v:(b/1073741824).toFixed(6)},{l:'TB',v:(b/1099511627776).toFixed(8)}])},
+  binary(){const v=g('c0').trim(),f=+g('c1');if(!v)return;const dec=parseInt(v,f);if(isNaN(dec))return;r([{l:'Decimal (10)',v:dec,big:1},{l:'Binary (2)',v:dec.toString(2)},{l:'Hexadecimal (16)',v:dec.toString(16).toUpperCase()},{l:'Octal (8)',v:dec.toString(8)}])},
+  bandwidth(){const f=+g('c0'),s=+g('c1');if(!f||!s)return;const sec=f*8/s;r([{l:'Time',v:sec>=3600?(sec/3600).toFixed(2)+'h':sec>=60?(sec/60).toFixed(1)+'m':sec.toFixed(1)+'s',big:1}])},
+  uptime(){const t=+g('c0'),d=+g('c1');if(!t)return;const up=((t-d)/t*100).toFixed(3);r([{l:'Uptime %',v:up+'%',big:1},{l:'Downtime',v:d+'h'},{l:'SLA',v:up>=99.9?'✅ 3-Nines':up>=99?'⚠️ Low':'❌ Poor',red:up<99}])},
+  data_usage(){const v=+g('c0'),s=+g('c1'),w=+g('c2'),c=+g('c3');const daily=(v*1.5+s*.15+w*.05+c*.5)*1024;r([{l:'Daily Usage',v:daily.toFixed(0)+' MB',big:1},{l:'Monthly',v:(daily*30/1024).toFixed(1)+' GB'}])},
+  electricity(){const u=+g('c0'),rt=+g('c1'),fc=+g('c2');if(!u)return;const e=u*rt,t=e+fc;r([{l:'Energy Charges',v:'₹'+e.toFixed(0)},{l:'Fixed',v:'₹'+fc.toFixed(0)},{l:'Total Bill',v:'₹'+t.toFixed(0),big:1},{l:'Per Day',v:'₹'+(t/30).toFixed(1)}])},
+  age(){const dob=g('c0');if(!dob)return;const now=new Date(),birth=new Date(dob);let yrs=now.getFullYear()-birth.getFullYear();if(now.getMonth()-birth.getMonth()<0||(now.getMonth()===birth.getMonth()&&now.getDate()<birth.getDate())) yrs--;const months=Math.floor((now-birth)/(864e5*30.44)),days=Math.floor((now-birth)/864e5);const next=new Date(now.getFullYear(),birth.getMonth(),birth.getDate());if(next<=now) next.setFullYear(now.getFullYear()+1);r([{l:'Age',v:yrs+' years',big:1},{l:'Months',v:months},{l:'Days',v:days.toLocaleString()},{l:'Next Birthday',v:'in '+Math.ceil((next-now)/864e5)+' days 🎂'}])},
+  tip(){const b=+g('c0'),t=+g('c1'),s=+g('c2');if(!b)return;const tip=b*t/100,tot=b+tip;r([{l:'Tip',v:'₹'+tip.toFixed(0),big:1},{l:'Total',v:'₹'+tot.toFixed(0)},{l:'Per Person',v:'₹'+(tot/s).toFixed(0)}])},
+  sleep(){const t=g('c0');if(!t)return;const[h,m]=t.split(':').map(Number),base=new Date();base.setHours(h,m,0,0);const cy=[1.5,3,4.5,6,7.5,9].map(c=>{const d=new Date(base.getTime()+c*3600000);return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});document.getElementById('R').innerHTML=`<div class="rb"><div style="font-size:.72rem;color:var(--muted2);margin-bottom:.3rem">🌙 Optimal wake-up times:</div>${cy.map((c,i)=>`<div class="rr ${i===3||i===4?'big':''}"><span class="rl">${i+1} cycle${i>0?'s':''}</span><span class="rv">${c}</span></div>`).join('')}</div>`},
+  grocery(){const lines=g('c0').trim().split('\n').filter(l=>l.trim());const items=lines.map(l=>{const[n,p,q]=l.split(',');return{name:(n||'Item').trim(),price:+(p||0),qty:+(q||1)}});const rows=items.map(i=>({l:i.name+' ×'+i.qty,v:'₹'+(i.price*i.qty).toFixed(2)}));rows.push({l:'TOTAL',v:'₹'+items.reduce((a,i)=>a+i.price*i.qty,0).toFixed(2),big:1});r(rows)},
+  bmi(){const w=+g('c0'),h=+g('c1')/100;if(!w||!h)return;const bmi=w/(h*h);r([{l:'BMI',v:bmi.toFixed(1),big:1},{l:'Category',v:bmi<18.5?'Underweight':bmi<25?'✅ Normal':bmi<30?'⚠️ Overweight':'❌ Obese'},{l:'Ideal Weight',v:(22*h*h).toFixed(1)+' kg'}])},
+  calorie(){const w=+g('c0'),h=+g('c1'),a=+g('c2'),gen=g('c3'),act=+g('c4');if(!w||!h||!a)return;const bmr=gen==='m'?88.36+13.4*w+4.8*h-5.7*a:447.6+9.2*w+3.1*h-4.3*a;const tdee=bmr*act;r([{l:'BMR',v:bmr.toFixed(0)+' kcal'},{l:'TDEE (Maintain)',v:tdee.toFixed(0)+' kcal',big:1},{l:'For Weight Loss',v:(tdee-500).toFixed(0)+' kcal'},{l:'For Weight Gain',v:(tdee+500).toFixed(0)+' kcal'}])},
+  water_intake(){const w=+g('c0'),a=+g('c1');if(!w)return;const ml=w*35*a;r([{l:'Daily Water',v:(ml/1000).toFixed(1)+' L',big:1},{l:'In ml',v:ml.toFixed(0)+' ml'},{l:'Glasses (250ml)',v:Math.ceil(ml/250)+''}])},
+  ideal_weight(){const h=+g('c0')/100;if(!h)return;r([{l:'Min Healthy',v:(18.5*h*h).toFixed(1)+' kg'},{l:'Ideal (BMI 22)',v:(22*h*h).toFixed(1)+' kg',big:1},{l:'Max Healthy',v:(25*h*h).toFixed(1)+' kg'}])},
+  heart_rate(){const a=+g('c0');if(!a)return;const mx=220-a;r([{l:'Max HR',v:mx+' bpm',big:1},{l:'Fat Burn 50–70%',v:Math.round(mx*.5)+' – '+Math.round(mx*.7)+' bpm'},{l:'Cardio 70–85%',v:Math.round(mx*.7)+' – '+Math.round(mx*.85)+' bpm'},{l:'Peak 85–95%',v:Math.round(mx*.85)+' – '+Math.round(mx*.95)+' bpm'}])},
+  time_alloc(){const t=+g('c0'),p1=+g('c1'),p2=+g('c2'),p3=+g('c3');if(!t)return;r([{l:'Work/Study',v:(t*p1/100).toFixed(1)+'h'},{l:'Exercise',v:(t*p2/100).toFixed(1)+'h'},{l:'Leisure',v:(t*p3/100).toFixed(1)+'h'},{l:'Rest/Other',v:(t*(100-p1-p2-p3)/100).toFixed(1)+'h',big:1}])},
+  task_priority(){const u=+g('c0'),im=+g('c1'),ef=+g('c2');if(!u||!im||!ef)return;const score=(u*.4+im*.4+(10-ef)*.2).toFixed(1);r([{l:'Score',v:score+'/10',big:1},{l:'Action',v:score>=8?'🔴 Do First':score>=6?'🟡 Schedule':score>=4?'🟢 Delegate':'⚪ Drop'}])},
+  goal_progress(){const t=+g('c0'),c=+g('c1'),d=+g('c2'),e=+g('c3');if(!t||!d)return;const pct=(c/t*100).toFixed(1),exp=(e/d*100).toFixed(1);r([{l:'Done',v:pct+'%',big:1},{l:'Expected',v:exp+'%'},{l:'Status',v:+pct>=(+exp-5)?'✅ On Track':'⚠️ Behind',red:+pct<+exp-5,green:+pct>=(+exp-5)}])},
+  workload(){const t=+g('c0'),h=+g('c1'),f=+g('c2');if(!t||!h||!f)return;const tot=t*h,days=Math.ceil(tot/f);r([{l:'Total Hrs',v:tot.toFixed(1)+'h'},{l:'Days Needed',v:days+' days',big:1},{l:'Done By',v:new Date(Date.now()+days*864e5).toLocaleDateString()}])},
+  productivity_idx(){const x=+g('c0'),y=+g('c1'),z=+g('c2'),w=+g('c3');if(!y)return;const score=Math.min(100,((x/y)*.5+(z/8)*.3+Math.max(0,(10-w)/10)*.2)*100).toFixed(0);r([{l:'Score',v:score+'/100',big:1},{l:'Rating',v:score>=80?'🔥 Excellent':score>=60?'✅ Good':score>=40?'⚠️ Average':'❌ Low'}])},
+  // HOUSE
+  room_area(){const l=+g('c0'),w=+g('c1'),u=g('c2');if(!l||!w)return;const toSqm={m:1,ft:.0929,cm:.0001};const m2=l*w*toSqm[u];const lf=u==='m'?l*3.281:u==='ft'?l:l*.0328,wf=u==='m'?w*3.281:u==='ft'?w:w*.0328;r([{l:'Area ('+u+'²)',v:(l*w).toFixed(2)+' '+u+'²',big:1},{l:'In m²',v:m2.toFixed(3)+' m²'},{l:'In sq ft',v:(m2/.0929).toFixed(2)+' sq ft'},{l:'In sq yd',v:(m2/.8361).toFixed(2)+' sq yd'}])},
+  paint_calc(){const l=+g('c0'),w=+g('c1'),h=+g('c2'),dw=+g('c3'),coats=+g('c4');if(!l||!w||!h)return;const wallArea=2*(l+w)*h,openings=dw*1.8,paintable=(wallArea-openings)*coats,litres=paintable/10;r([{l:'Total Wall Area',v:wallArea.toFixed(1)+' m²'},{l:'Paintable (×'+coats+' coats)',v:paintable.toFixed(1)+' m²'},{l:'Paint Needed',v:litres.toFixed(1)+' L',big:1},{l:'Tins (4L each)',v:Math.ceil(litres/4)+' tins'}])},
+  flooring(){const l=+g('c0'),w=+g('c1'),ts=+g('c2'),tp=+g('c3');if(!l||!w)return;const area=l*w,tiles=Math.ceil(area/ts*1.1),cost=tiles*(+tp);r([{l:'Room Area',v:area.toFixed(2)+' m²'},{l:'Tiles (10% waste)',v:tiles,big:1},{l:'Total Cost',v:'₹'+cost.toFixed(0)}])},
+  sqft_sqm(){const v=+g('c0'),u=g('c1');if(!v)return;const toM2={sqft:.0929,sqm:1,sqyd:.8361,acre:4046.86,guntha:101.17,bigha:1011.7};const m2=v*toM2[u];r([{l:'m²',v:m2.toFixed(3),big:1},{l:'sq ft',v:(m2/.0929).toFixed(2)},{l:'sq yd',v:(m2/.8361).toFixed(2)},{l:'acres',v:(m2/4046.86).toFixed(4)},{l:'guntha',v:(m2/101.17).toFixed(3)},{l:'bigha',v:(m2/1011.7).toFixed(4)}])},
+  volume_box(){const shape=g('c0'),l=+g('c1'),w=+g('c2'),h=+g('c3');if(!l)return;let vol;if(shape==='box') vol=l*w*h;else if(shape==='cyl') vol=Math.PI*l*l*h;else if(shape==='sphere') vol=(4/3)*Math.PI*l*l*l;else vol=(1/3)*Math.PI*l*l*h;r([{l:'Volume (m³)',v:vol.toFixed(4),big:1},{l:'Volume (L)',v:(vol*1000).toFixed(2)+' L'},{l:'Volume (cm³)',v:(vol*1e6).toFixed(0)+' cm³'},{l:'US Gallons',v:(vol*264.172).toFixed(3)}])},
+  wall_area(){const l=+g('c0'),w=+g('c1'),h=+g('c2'),wins=+g('c3'),doors=+g('c4');if(!l||!w||!h)return;const total=2*(l+w)*h,openings=wins*1.5+doors*1.8,paintable=total-openings;r([{l:'Total Wall Area',v:total.toFixed(1)+' m²'},{l:'Openings (−)',v:openings.toFixed(1)+' m²'},{l:'Paintable Area',v:paintable.toFixed(1)+' m²',big:1}])},
+  plot_area(){const v=+g('c0'),u=g('c1');if(!v)return;const toM2={sqft:.0929,sqm:1,sqyd:.8361,acre:4046.86,guntha:101.17,bigha:1011.7};const m2=v*toM2[u];r([{l:'m²',v:m2.toFixed(2),big:1},{l:'sq ft',v:(m2/.0929).toFixed(1)},{l:'sq yd',v:(m2/.8361).toFixed(1)},{l:'acres',v:(m2/4046.86).toFixed(4)},{l:'guntha',v:(m2/101.17).toFixed(3)},{l:'bigha',v:(m2/1011.7).toFixed(4)}])},
+  // CS & BINARY
+  ones_comp(){const bin=g('c0').trim().replace(/[^01]/g,'');if(!bin)return;const ones=bin.split('').map(b=>b==='0'?'1':'0').join('');r([{l:'Original',v:bin},{l:"1's Complement",v:ones,big:1},{l:'Decimal (orig)',v:parseInt(bin,2)},{l:'Decimal (comp)',v:parseInt(ones,2)}])},
+  twos_comp(){const bin=g('c0').trim().replace(/[^01]/g,'');if(!bin)return;const ones=bin.split('').map(b=>b==='0'?'1':'0').join('');const twos=(parseInt(ones,2)+1).toString(2).padStart(bin.length,'0');r([{l:'Original',v:bin},{l:"1's Complement",v:ones},{l:"2's Complement",v:twos,big:1},{l:'Decimal Value',v:parseInt(twos,2)}])},
+  nines_comp(){const num=g('c0').trim().replace(/[^0-9]/g,'');if(!num)return;const comp=num.split('').map(d=>(9-+d).toString()).join('');r([{l:'Original',v:num},{l:"9's Complement",v:comp,big:1}])},
+  tens_comp(){const num=g('c0').trim().replace(/[^0-9]/g,'');if(!num)return;const nines=num.split('').map(d=>(9-+d).toString()).join('');const tens=(parseInt(nines)+1).toString();r([{l:'Original',v:num},{l:"9's Complement",v:nines},{l:"10's Complement",v:tens,big:1}])},
+  base_conv(){const v=g('c0').trim(),from=+g('c1');if(!v)return;const dec=parseInt(v,from);if(isNaN(dec))return;r([{l:'Decimal (10)',v:dec,big:1},{l:'Binary (2)',v:dec.toString(2)},{l:'Octal (8)',v:dec.toString(8)},{l:'Hexadecimal (16)',v:dec.toString(16).toUpperCase()}])},
+  ieee754(){const num=parseFloat(g('c0'));if(isNaN(num))return;const buf=new ArrayBuffer(4);new DataView(buf).setFloat32(0,num,false);const bytes=new Uint8Array(buf);const bits=Array.from(bytes).map(b=>b.toString(2).padStart(8,'0')).join('');const sign=bits[0],exp=bits.slice(1,9),mant=bits.slice(9);r([{l:'Binary (32-bit)',v:sign+' '+exp+' '+mant,big:1},{l:'Sign bit',v:sign==='0'?'0 (positive)':'1 (negative)'},{l:'Exponent',v:exp+' ('+parseInt(exp,2)+')'},{l:'Actual Exp',v:parseInt(exp,2)-127},{l:'Mantissa',v:mant}])},
+  data_types(){const dt=g('c0');const info={bool:{bits:1,bytes:1,min:0,max:1,desc:'Boolean (true/false)'},char:{bits:8,bytes:1,min:-128,max:127,desc:'Character / int8'},short:{bits:16,bytes:2,min:-32768,max:32767,desc:'Short integer'},int:{bits:32,bytes:4,min:-2147483648,max:2147483647,desc:'Integer (32-bit)'},long:{bits:64,bytes:8,min:'−2⁶³',max:'2⁶³−1',desc:'Long integer (64-bit)'},float:{bits:32,bytes:4,min:'~±3.4×10³⁸',max:'~±3.4×10³⁸',desc:'Float (IEEE 754, ~7 sig digits)'},double:{bits:64,bytes:8,min:'~±1.8×10³⁰⁸',max:'~±1.8×10³⁰⁸',desc:'Double (IEEE 754, ~15 sig digits)'}};const d=info[dt];r([{l:'Type',v:d.desc,big:1},{l:'Size (bits)',v:d.bits+' bits'},{l:'Size (bytes)',v:d.bytes+' bytes'},{l:'Min Value',v:''+d.min},{l:'Max Value',v:''+d.max}])},
+  bits_bytes(){const v=+g('c0'),u=g('c1');if(!v)return;const toBit={bit:1,B:8,KB:8192,MB:8388608,GB:8589934592,TB:8796093022208,PB:9007199254740992};const bits=v*toBit[u];const B=bits/8;r([{l:'bits',v:bits.toLocaleString(),big:1},{l:'Bytes',v:B.toFixed(0)},{l:'KB',v:(B/1024).toFixed(3)},{l:'MB',v:(B/1048576).toFixed(5)},{l:'GB',v:(B/1073741824).toFixed(8)}])},
+  // DATE & TIME
+  date_diff(){const d1=new Date(g('c0')),d2=new Date(g('c1'));if(isNaN(d1)||isNaN(d2))return;const diff=Math.abs(d2-d1),days=Math.floor(diff/864e5);r([{l:'Days',v:days,big:1},{l:'Weeks',v:Math.floor(days/7)+'w '+days%7+'d'},{l:'Months (~)',v:Math.floor(days/30.44)},{l:'Years (~)',v:(days/365.25).toFixed(2)}])},
+  time_calc(){const parse=s=>{const[h=0,m=0,sec=0]=s.split(':').map(Number);return h*3600+m*60+sec};const t1=parse(g('c0')),t2=parse(g('c1')),op=g('c2');const total=op==='diff'?Math.abs(t2-t1):t1+t2;const h=Math.floor(total/3600),m=Math.floor((total%3600)/60),s=total%60;r([{l:'Result',v:`${h}h ${m}m ${s}s`,big:1},{l:'Total Seconds',v:total},{l:'Total Minutes',v:Math.floor(total/60)}])},
+  day_of_week(){const d=new Date(g('c0'));if(isNaN(d))return;const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];r([{l:'Day',v:days[d.getDay()],big:1},{l:'Date',v:d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear()},{l:'Week #',v:Math.ceil((d-new Date(d.getFullYear(),0,1))/864e5/7)+1}])},
+  unix_time(){const dt=g('c0'),uts=g('c1');if(dt){const d=new Date(dt);r([{l:'Unix Timestamp',v:Math.floor(d.getTime()/1000),big:1},{l:'UTC',v:d.toUTCString()}])}else if(uts){const d=new Date(+uts*1000);r([{l:'Date',v:d.toLocaleDateString(),big:1},{l:'Time',v:d.toLocaleTimeString()},{l:'UTC',v:d.toUTCString()}])}},
+  timezone(){const dt=g('c0'),from=+g('c1'),to=+g('c2');if(!dt)return;const base=new Date(dt),diff=(to-from)*3600000,converted=new Date(base.getTime()+diff);r([{l:'Source Time',v:base.toLocaleTimeString()},{l:'UTC'+(to>=0?'+':'')+to+' Time',v:converted.toLocaleTimeString(),big:1},{l:'Date (dest)',v:converted.toLocaleDateString()},{l:'Offset',v:(to-from>0?'+':'')+(to-from)+'h'}])},
+  // CONVERTERS
+  length(){const v=+g('c0'),u=g('c1');if(!v)return;const toM={mm:.001,cm:.01,m:1,km:1000,in:.0254,ft:.3048,yd:.9144,mi:1609.34};const m=v*toM[u];r([{l:'mm',v:(m/.001).toFixed(2)},{l:'cm',v:(m/.01).toFixed(3)},{l:'m',v:m.toFixed(4),big:1},{l:'km',v:(m/1000).toFixed(6)},{l:'inches',v:(m/.0254).toFixed(3)},{l:'feet',v:(m/.3048).toFixed(3)},{l:'yards',v:(m/.9144).toFixed(3)},{l:'miles',v:(m/1609.34).toFixed(6)}])},
+  weight_conv(){const v=+g('c0'),u=g('c1');if(!v)return;const toKg={kg:1,g:.001,mg:1e-6,lb:.453592,oz:.0283495,tonne:1000};const kg=v*toKg[u];r([{l:'kg',v:kg.toFixed(4),big:1},{l:'g',v:(kg*1000).toFixed(2)},{l:'mg',v:(kg*1e6).toFixed(0)},{l:'lb',v:(kg/.453592).toFixed(4)},{l:'oz',v:(kg/.0283495).toFixed(3)},{l:'tonne',v:(kg/1000).toFixed(6)}])},
+  temperature(){const v=+g('c0'),u=g('c1');let c,f,k;if(u==='C'){c=v;f=v*9/5+32;k=v+273.15}else if(u==='F'){c=(v-32)*5/9;f=v;k=c+273.15}else{k=v;c=v-273.15;f=c*9/5+32}r([{l:'°C',v:c.toFixed(3),big:u==='C'},{l:'°F',v:f.toFixed(3),big:u==='F'},{l:'Kelvin',v:k.toFixed(3),big:u==='K'}])},
+  speed(){const v=+g('c0'),u=g('c1');if(!v)return;const toMs={kmh:1/3.6,ms:1,mph:.44704,kn:.514444,mach:340};const ms=v*toMs[u];r([{l:'km/h',v:(ms*3.6).toFixed(3)},{l:'m/s',v:ms.toFixed(4),big:1},{l:'mph',v:(ms/.44704).toFixed(3)},{l:'knots',v:(ms/.514444).toFixed(3)},{l:'Mach',v:(ms/340).toFixed(5)}])},
+  area(){const v=+g('c0'),u=g('c1');if(!v)return;const toM2={m2:1,ft2:.0929,cm2:1e-4,acre:4046.86,ha:10000,km2:1e6};const m2=v*toM2[u];r([{l:'m²',v:m2.toFixed(4),big:1},{l:'ft²',v:(m2/.0929).toFixed(2)},{l:'cm²',v:(m2*1e4).toFixed(0)},{l:'acres',v:(m2/4046.86).toFixed(5)},{l:'hectares',v:(m2/10000).toFixed(5)}])},
+  liquid(){const v=+g('c0'),u=g('c1');if(!v)return;const toL={L:1,mL:.001,gal_us:3.78541,gal_uk:4.54609,floz:.0295735,cup:.236588,pint:.473176,qt:.946353,tsp:.00492892,tbsp:.0147868};const L=v*toL[u];r([{l:'Litres',v:L.toFixed(5),big:1},{l:'mL',v:(L*1000).toFixed(2)},{l:'US Gallons',v:(L/3.78541).toFixed(4)},{l:'UK Gallons',v:(L/4.54609).toFixed(4)},{l:'fl oz',v:(L/.0295735).toFixed(3)},{l:'Cups',v:(L/.236588).toFixed(4)},{l:'Pints',v:(L/.473176).toFixed(4)},{l:'Teaspoons',v:(L/.00492892).toFixed(2)},{l:'Tablespoons',v:(L/.0147868).toFixed(2)}])},
+  pressure(){const v=+g('c0'),u=g('c1');if(!v)return;const toPa={Pa:1,kPa:1000,MPa:1e6,bar:100000,psi:6894.76,atm:101325,mmHg:133.322};const Pa=v*toPa[u];r([{l:'Pa',v:Pa.toFixed(2),big:1},{l:'kPa',v:(Pa/1000).toFixed(4)},{l:'bar',v:(Pa/100000).toFixed(6)},{l:'psi',v:(Pa/6894.76).toFixed(4)},{l:'atm',v:(Pa/101325).toFixed(5)},{l:'mmHg',v:(Pa/133.322).toFixed(3)}])},
+  energy_conv(){const v=+g('c0'),u=g('c1');if(!v)return;const toJ={J:1,kJ:1000,cal:4.184,kcal:4184,kWh:3600000,eV:1.602e-19};const J=v*toJ[u];r([{l:'Joules',v:J.toFixed(3),big:1},{l:'kJ',v:(J/1000).toFixed(4)},{l:'cal',v:(J/4.184).toFixed(3)},{l:'kcal',v:(J/4184).toFixed(5)},{l:'kWh',v:(J/3600000).toFixed(8)},{l:'eV',v:(J/1.602e-19).toExponential(3)}])},
+  memory(){const v=+g('c0'),u=g('c1');if(!v)return;const toB={bit:.125,B:1,KB:1024,MB:1048576,GB:1073741824,TB:1099511627776,PB:1125899906842624,EB:1.15292e18};const B=v*toB[u];r([{l:'Bytes',v:B.toLocaleString(),big:1},{l:'KB',v:(B/1024).toFixed(2)},{l:'MB',v:(B/1048576).toFixed(4)},{l:'GB',v:(B/1073741824).toFixed(6)},{l:'TB',v:(B/1099511627776).toFixed(9)},{l:'bits',v:(B*8).toLocaleString()}])},
+  angle(){const v=+g('c0'),u=g('c1');if(!v)return;const toDeg={deg:1,rad:180/Math.PI,grad:.9,turn:360};const deg=v*toDeg[u];r([{l:'Degrees',v:deg.toFixed(4),big:1},{l:'Radians',v:(deg*Math.PI/180).toFixed(6)},{l:'Gradians',v:(deg/.9).toFixed(4)},{l:'Turns',v:(deg/360).toFixed(6)}])},
+  // EQUATION
+  linear_eq(){const m=+g('c0'),c=+g('c1'),xv=g('c2'),yv=g('c3');const rows=[{l:'Formula',v:`y = ${m}x + (${c})`}];if(xv!==''){const y=m*(+xv)+c;rows.push({l:`y when x=${xv}`,v:y.toFixed(4),big:1})}if(yv!==''){const x=((+yv)-c)/m;rows.push({l:`x when y=${yv}`,v:x.toFixed(4),big:1})}r(rows)},
+  xy_table(){const fm=g('c0'),from=+g('c1'),to=+g('c2'),step=+g('c3')||1;if(!fm)return;const rows=[];for(let x=from;x<=to;x+=step){try{const y=Function('x','return '+fm)(x);rows.push({l:'x = '+x.toFixed(2),v:'y = '+y.toFixed(4)})}catch(e){rows.push({l:'x = '+x,v:'Error'})}}r(rows.slice(0,15))},
+  ratio_prop(){const a=+g('c0'),b=+g('c1'),c=+g('c2');if(!a||!b||!c)return;const y=(b/a)*c;r([{l:'Ratio',v:a+' : '+b},{l:'New x',v:c},{l:'New y',v:y.toFixed(4),big:1}])},
+  percentage_eq(){const mode=g('c0'),x=+g('c1'),y=+g('c2');if(!x||!y)return;let rows;if(mode==='of') rows=[{l:x+'% of '+y,v:(y*x/100).toFixed(4),big:1}];else if(mode==='is') rows=[{l:x+' is % of '+y,v:(x/y*100).toFixed(4)+'%',big:1}];else if(mode==='inc') rows=[{l:'Increased by '+y+'%',v:(x*(1+y/100)).toFixed(4),big:1},{l:'Increase',v:(x*y/100).toFixed(4)}];else rows=[{l:'Decreased by '+y+'%',v:(x*(1-y/100)).toFixed(4),big:1},{l:'Decrease',v:(x*y/100).toFixed(4)}];r(rows)},
+  // SOUND
+  freq_wave(){const fv=g('c0'),lv=g('c1'),vv=+g('c2');if(fv&&!lv){const lam=vv/(+fv);r([{l:'Frequency',v:(+fv)+' Hz'},{l:'Wavelength λ',v:lam.toFixed(4)+' m',big:1},{l:'Speed',v:vv+' m/s'}])}else if(lv&&!fv){const freq=vv/(+lv);r([{l:'Wavelength',v:(+lv)+' m'},{l:'Frequency f',v:freq.toFixed(4)+' Hz',big:1},{l:'Speed',v:vv+' m/s'}])}else if(fv&&lv){r([{l:'Speed v=f×λ',v:((+fv)*(+lv)).toFixed(4)+' m/s',big:1}])}},
+  db_calc(){const i=parseFloat(g('c0'));if(!i||i<=0)return;const db=10*Math.log10(i/1e-12);r([{l:'Sound Level',v:db.toFixed(1)+' dB',big:1},{l:'Category',v:db>140?'💀 Dangerous':db>120?'🔴 Very Loud':db>85?'🟠 Loud':db>60?'🟡 Moderate':db>30?'🟢 Quiet':'🔵 Near Silent'}])},
+  note_freq(){const notes=['C','C#/Db','D','D#/Eb','E','F','F#/Gb','G','G#/Ab','A','A#/Bb','B'];const note=g('c0'),oct=+g('c1');const semitones=(oct-4)*12+(notes.indexOf(note)-9);const freq=440*Math.pow(2,semitones/12);r([{l:'Note',v:note+oct},{l:'Frequency',v:freq.toFixed(3)+' Hz',big:1},{l:'Period',v:(1/freq*1000).toFixed(4)+' ms'},{l:'Angular freq ω',v:(2*Math.PI*freq).toFixed(2)+' rad/s'}])},
+  sound_dist(){const t=+g('c0'),v=+g('c1');if(!t||!v)return;r([{l:'Distance',v:(t*v).toFixed(2)+' m',big:1},{l:'In km',v:(t*v/1000).toFixed(3)+' km'},{l:'Echo (one-way)',v:(t*v/2).toFixed(2)+' m'}])},
+  doppler(){const fs=+g('c0'),vs=+g('c1'),ss=+g('c2'),so=+g('c3');if(!fs)return;const fo=fs*(vs+so)/(vs-ss);r([{l:'Source Freq',v:fs+' Hz'},{l:'Observed Freq',v:fo.toFixed(2)+' Hz',big:1},{l:'Effect',v:fo>fs?'📈 Higher (approaching)':'📉 Lower (receding)'}])},
+  // ALPHABET
+  letter_pos(){const inp=g('c0').toUpperCase().replace(/[^A-Z]/g,'');if(!inp)return;if(inp.length===1){r([{l:'Letter',v:inp,big:1},{l:'Position',v:(inp.charCodeAt(0)-64)+''},{l:'ASCII',v:inp.charCodeAt(0)+''}])}else{const rows=inp.split('').map(ch=>({l:ch,v:(ch.charCodeAt(0)-64)+''}));rows.push({l:'Sum',v:inp.split('').reduce((a,c)=>a+c.charCodeAt(0)-64,0)+'',big:1});r(rows)}},
+  letter_range(){const s=g('c0').toUpperCase().trim(),e=g('c1').toUpperCase().trim();if(!s||!e||!/[A-Z]/.test(s)||!/[A-Z]/.test(e))return;const sc=s.charCodeAt(0),ec=e.charCodeAt(0);const min=Math.min(sc,ec),max=Math.max(sc,ec);const letters=[];for(let i=min;i<=max;i++) letters.push(String.fromCharCode(i)+'='+(i-64));r([{l:'From',v:s+'='+(sc-64)},{l:'To',v:e+'='+(ec-64)},{l:'Count',v:(max-min+1)+' letters',big:1},{l:'List',v:letters.join('  ')}])},
+  word_value(){const word=g('c0').toUpperCase();const total=word.split('').reduce((a,c)=>a+(c>='A'&&c<='Z'?c.charCodeAt(0)-64:0),0);const brkdwn=word.split('').filter(c=>c>='A'&&c<='Z').map(c=>c+'='+(c.charCodeAt(0)-64)).join(' + ');r([{l:'Word',v:word},{l:'Breakdown',v:brkdwn},{l:'Total Value',v:total,big:1}])},
+  caesar(){const text=g('c0'),shift=+g('c1'),mode=g('c2');if(!text)return;const actualShift=mode==='enc'?shift:(26-shift%26);const result=text.split('').map(c=>{if(c>='A'&&c<='Z') return String.fromCharCode((c.charCodeAt(0)-65+actualShift)%26+65);if(c>='a'&&c<='z') return String.fromCharCode((c.charCodeAt(0)-97+actualShift)%26+97);return c}).join('');r([{l:'Original',v:text},{l:mode==='enc'?'Encrypted':'Decrypted',v:result,big:1},{l:'Shift',v:shift+''}])},
+  text_stats(){const txt=g('c0');if(!txt)return;const words=txt.trim().split(/\s+/).filter(w=>w).length,chars=txt.length,noSp=txt.replace(/\s/g,'').length,vowels=(txt.match(/[aeiouAEIOU]/g)||[]).length,cons=(txt.match(/[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]/g)||[]).length,sentences=(txt.match(/[.!?]+/g)||[]).length;r([{l:'Characters',v:chars,big:1},{l:'(No spaces)',v:noSp},{l:'Words',v:words},{l:'Sentences',v:sentences},{l:'Vowels',v:vowels},{l:'Consonants',v:cons}])},
+  // SCIENCE
+  force(){const F=g('c0'),m=+g('c1'),a=+g('c2');if(F===''&&m&&a){r([{l:'Force F=ma',v:(m*a).toFixed(4)+' N',big:1},{l:'Mass',v:m+' kg'},{l:'Acceleration',v:a+' m/s²'}])}else if(m&&F!==''){r([{l:'Acceleration a=F/m',v:((+F)/m).toFixed(4)+' m/s²',big:1}])}else if(a&&F!==''){r([{l:'Mass m=F/a',v:((+F)/a).toFixed(4)+' kg',big:1}])}},
+  kinetic_energy(){const m=+g('c0'),v=+g('c1');if(!m||!v)return;const ke=.5*m*v*v;r([{l:'Kinetic Energy',v:ke.toFixed(4)+' J',big:1},{l:'In kJ',v:(ke/1000).toFixed(6)+' kJ'},{l:'Mass',v:m+' kg'},{l:'Velocity',v:v+' m/s'}])},
+  ohms_law(){const V=g('c0'),I=+g('c1'),R=+g('c2');if(V===''&&I&&R){r([{l:'Voltage V=IR',v:(I*R).toFixed(4)+' V',big:1},{l:'Power P=IV',v:(I*I*R).toFixed(4)+' W'}])}else if(+V&&R){r([{l:'Current I=V/R',v:((+V)/R).toFixed(4)+' A',big:1},{l:'Power P=V²/R',v:(Math.pow(+V,2)/R).toFixed(4)+' W'}])}else if(+V&&I){r([{l:'Resistance R=V/I',v:((+V)/I).toFixed(4)+' Ω',big:1},{l:'Power P=VI',v:((+V)*I).toFixed(4)+' W'}])}},
+  molarity(){const n=+g('c0'),v=+g('c1');if(!n||!v)return;const M=n/v;r([{l:'Molarity',v:M.toFixed(4)+' M',big:1},{l:'(mol/L))',v:M.toFixed(6)},{l:'Moles',v:n+' mol'},{l:'Volume',v:v+' L'}])},
+  ph_calc(){const mode=g('c0'),val=+g('c1');if(!val)return;if(mode==='h'){const pH=-Math.log10(val);r([{l:'pH',v:pH.toFixed(3),big:1},{l:'pOH',v:(14-pH).toFixed(3)},{l:'[OH⁻]',v:Math.pow(10,-(14-pH)).toExponential(3)+' mol/L'},{l:'Type',v:pH<7?'Acidic':pH===7?'Neutral':'Basic'}])}else if(mode==='oh'){const pOH=-Math.log10(val),pH=14-pOH;r([{l:'pH',v:pH.toFixed(3),big:1},{l:'pOH',v:pOH.toFixed(3)},{l:'Type',v:pH<7?'Acidic':pH===7?'Neutral':'Basic'}])}else{const H=Math.pow(10,-val);r([{l:'[H⁺]',v:H.toExponential(4)+' mol/L',big:1},{l:'pOH',v:(14-val).toFixed(3)},{l:'Type',v:val<7?'Acidic':val===7?'Neutral':'Basic'}])}},
+  half_life(){const N0=+g('c0'),t_half=+g('c1'),t=+g('c2');if(!N0||!t_half||!t)return;const N=N0*Math.pow(.5,t/t_half),decayed=N0-N,pct=((N/N0)*100);r([{l:'Remaining',v:N.toFixed(4),big:1},{l:'Remaining %',v:pct.toFixed(2)+'%'},{l:'Decayed',v:decayed.toFixed(4)},{l:'Half-lives passed',v:(t/t_half).toFixed(2)}])},
+  ideal_gas(){const P=g('c0'),V=+g('c1'),n=+g('c2'),T=+g('c3');const R=8.314;if(P===''&&V&&n&&T){r([{l:'Pressure P=nRT/V',v:(n*R*T/V).toFixed(2)+' Pa',big:1},{l:'In kPa',v:(n*R*T/V/1000).toFixed(4)+' kPa'},{l:'In atm',v:(n*R*T/V/101325).toFixed(5)+' atm'}])}else if(+P&&V&&T){r([{l:'Moles n=PV/RT',v:((+P)*V/(R*T)).toFixed(4)+' mol',big:1}])}else if(+P&&n&&T){r([{l:'Volume V=nRT/P',v:(n*R*T/(+P)).toFixed(4)+' m³',big:1}])}},
+  dilution(){const C1=+g('c0'),V1=+g('c1'),C2=g('c2'),V2=+g('c3');if(C2===''&&C1&&V1&&V2){const c2=(C1*V1)/V2;r([{l:'C₁V₁=C₂V₂',v:C1+'×'+V1+' = C₂×'+V2},{l:'Final Concentration C₂',v:c2.toFixed(4)+' M',big:1},{l:'Dilution Factor',v:(V2/V1).toFixed(2)+'×'}])}else if(C1&&V1&&+C2){const v2=(C1*V1)/(+C2);r([{l:'Final Volume V₂',v:v2.toFixed(4)+' L',big:1},{l:'Water to Add',v:(v2-V1).toFixed(4)+' L'},{l:'Dilution Factor',v:(v2/V1).toFixed(2)+'×'}])}},
+};
+
+// ===================== UTILS =====================
+function toggleTheme(){
+  lightMode=!lightMode;
+  const btn=document.getElementById('tb');
+  const dark={bg:'#080c14',bg2:'#0d1220',card:'#111827',card2:'#1a2235',border:'#1e2d45',text:'#e2e8f0',muted:'#64748b',muted2:'#94a3b8'};
+  const light={bg:'#f0f2f8',bg2:'#e8ecf4',card:'#ffffff',card2:'#f4f6fc',border:'#d4d8e8',text:'#1a1f35',muted:'#8890aa',muted2:'#5a6280'};
+  Object.entries(lightMode?light:dark).forEach(([k,v])=>document.documentElement.style.setProperty('--'+k,v));
+  btn.textContent=lightMode?'🌙 Dark':'☀️ Light';
+}
+
+// ===================== STANDARD CALCULATOR =====================
+let cState={disp:'0',expr:'',prevVal:null,op:null,fresh:false,histList:[]};
+function cRender(){document.getElementById('calc-disp').textContent=cState.disp;document.getElementById('calc-expr').textContent=cState.expr;}
+function cNum(n){
+  if(cState.fresh){cState.disp='0';cState.fresh=false;}
+  if(cState.disp==='0'&&n!=='.') cState.disp=n;
+  else if(cState.disp.length<16) cState.disp+=n;
+  cRender();
+}
+function cDot(){
+  if(cState.fresh){cState.disp='0';cState.fresh=false;}
+  if(!cState.disp.includes('.')) cState.disp+='.';
+  cRender();
+}
+function cOp(op){
+  const cur=parseFloat(cState.disp);
+  if(cState.prevVal!==null&&!cState.fresh){
+    const res=cCalc(cState.prevVal,cur,cState.op);
+    cState.disp=cFmt(res);cState.prevVal=res;
+  } else {cState.prevVal=cur;}
+  cState.op=op;cState.expr=cFmt(cState.prevVal)+' '+op;cState.fresh=true;cRender();
+}
+function cEquals(){
+  const cur=parseFloat(cState.disp);if(cState.prevVal===null)return;
+  const expr=cState.expr+' '+cState.disp;
+  const res=cCalc(cState.prevVal,cur,cState.op);
+  const rs=cFmt(res);
+  cAddHist(expr,rs);
+  cState.expr=expr+' =';cState.disp=rs;cState.prevVal=null;cState.op=null;cState.fresh=true;cRender();
+}
+function cCalc(a,b,op){
+  if(op==='+') return a+b;if(op==='−') return a-b;
+  if(op==='×') return a*b;if(op==='÷') return b===0?'ERR':a/b;return b;
+}
+function cFmt(n){if(n==='ERR') return 'ERR';const s=parseFloat((+n).toFixed(10));return isNaN(s)?'ERR':''+s;}
+function cAC(){cState={disp:'0',expr:'',prevVal:null,op:null,fresh:false,histList:cState.histList};cRender();}
+function cDel(){if(cState.fresh||cState.disp==='0')return;cState.disp=cState.disp.length>1?cState.disp.slice(0,-1):'0';cRender();}
+function cToggleSign(){const v=parseFloat(cState.disp);if(isNaN(v))return;cState.disp=cFmt(-v);cRender();}
+function cPercent(){const v=parseFloat(cState.disp);if(isNaN(v))return;cState.disp=cFmt(v/100);cRender();}
+function cSci(fn){
+  const v=parseFloat(cState.disp),DEG=Math.PI/180;
+  const map={sqrt:()=>v<0?'ERR':Math.sqrt(v),sq:()=>v*v,inv:()=>v===0?'ERR':1/v,
+    log:()=>v<=0?'ERR':Math.log10(v),ln:()=>v<=0?'ERR':Math.log(v),
+    sin:()=>Math.sin(v*DEG),cos:()=>Math.cos(v*DEG),tan:()=>Math.tan(v*DEG),abs:()=>Math.abs(v),
+    pi:()=>{cState.disp=cFmt(Math.PI);cRender();return null;},
+    e:()=>{cState.disp=cFmt(Math.E);cRender();return null;}};
+  if(!map[fn])return;const res=map[fn]();if(res===null)return;
+  const lbl={sqrt:'√',sq:'²',inv:'1/',log:'log',ln:'ln',sin:'sin',cos:'cos',tan:'tan',abs:'|x|'}[fn]||fn;
+  cAddHist(lbl+'('+cState.disp+')',cFmt(res));
+  cState.expr=lbl+'('+cState.disp+') =';cState.disp=cFmt(res);cState.fresh=true;cRender();
+}
+function cAddHist(expr,val){
+  cState.histList.unshift({expr,val});if(cState.histList.length>25) cState.histList.pop();cRenderHist();
+}
+function cRenderHist(){
+  const el=document.getElementById('calc-hist-list');
+  if(!el)return;
+  if(!cState.histList.length){el.innerHTML='<p style="font-size:.75rem;color:var(--muted)">No calculations yet.</p>';return;}
+  el.innerHTML=cState.histList.map(h=>`<div class="ch-item"><span class="ch-e">${h.expr}</span><span class="ch-v" onclick="cUseVal('${h.val}')">${h.val}</span></div>`).join('');
+}
+function cUseVal(v){cState.disp=v;cState.fresh=false;cRender();}
+function cClearHist(){cState.histList=[];cRenderHist();}
+// Keyboard support
+document.addEventListener('keydown',e=>{
+  const cv=document.getElementById('view-calculator');
+  if(!cv||!cv.classList.contains('active')) return;
+  if(document.activeElement.tagName==='INPUT'||document.activeElement.tagName==='TEXTAREA') return;
+  if(e.key>='0'&&e.key<='9') cNum(e.key);
+  else if(e.key==='.') cDot();
+  else if(e.key==='+') cOp('+');
+  else if(e.key==='-') cOp('−');
+  else if(e.key==='*') cOp('×');
+  else if(e.key==='/'){e.preventDefault();cOp('÷');}
+  else if(e.key==='Enter'||e.key==='=') cEquals();
+  else if(e.key==='Backspace') cDel();
+  else if(e.key==='Escape') cAC();
+});
+
+init();
+</script>
+</body>
+</html>
