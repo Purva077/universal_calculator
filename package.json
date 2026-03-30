@@ -2,11 +2,34 @@
   "name": "universal-calculator-hub",
   "version": "3.0.0",
   "description": "120+ calculators — Academic, Finance, CS/Binary, Science, Health & more. PWA, works offline.",
-  "private": true,
+  "author": "Universal Calculator Hub",
+  "license": "MIT",
+  "homepage": "https://github.com/YOUR_USERNAME/universal-calculator-hub",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/universal-calculator-hub.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YOUR_USERNAME/universal-calculator-hub/issues"
+  },
+  "keywords": [
+    "calculator",
+    "pwa",
+    "offline",
+    "academic",
+    "finance",
+    "health",
+    "science",
+    "converter",
+    "progressive-web-app",
+    "installable"
+  ],
   "scripts": {
     "start": "npx serve . -p 3000",
-    "dev": "npx serve . -p 3000 --no-clipboard"
+    "dev": "npx serve . -p 3000 --no-clipboard",
+    "preview": "npx serve . -p 8080"
   },
-  "keywords": ["calculator", "pwa", "offline", "academic", "finance"],
-  "license": "MIT"
+  "engines": {
+    "node": ">=14.0.0"
+  }
 }

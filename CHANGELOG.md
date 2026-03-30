@@ -8,7 +8,7 @@ All notable changes to Universal Calculator Hub are documented here.
 - PWA support — installable on Android, iOS, Windows, macOS
 - Full offline support via Service Worker
 - 8 new categories: House & Area, CS & Binary, Date & Time, All Converters, X→Y Equations, Sound & Frequency, Alphabet & Text, Science
-- 60+ new calculators bringing total to 120+
+- 96 total calculators across 18 categories
 - IEEE 754 float visualizer
 - 1's / 2's / 9's / 10's complement calculators
 - Ideal Gas Law, Half-Life Decay, Dilution, Molarity, pH
@@ -19,6 +19,8 @@ All notable changes to Universal Calculator Hub are documented here.
 - Offline badge indicator
 - PWA install prompt bar
 - Keyboard support on standard calculator
+- GitHub Actions auto-deploy workflow
+- Complete startup documentation
 
 ### Improved
 - Sidebar reorganized with section grouping

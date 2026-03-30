@@ -1,8 +1,9 @@
 {
   "name": "Universal Calculator Hub",
   "short_name": "CalcHub",
-  "description": "120+ calculators — Academic, Finance, CS, Science, Health & more",
-  "start_url": "/",
+  "description": "96 calculators across 18 categories — Academic, Finance, CS, Science, Health & more. Works offline.",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#080c14",
   "theme_color": "#f59e0b",
@@ -14,8 +15,8 @@
   "categories": ["utilities", "education", "productivity"],
   "screenshots": [],
   "shortcuts": [
-    { "name": "Calculator", "url": "/?view=calculator", "description": "Quick calculator" },
-    { "name": "Academic", "url": "/?view=academic", "description": "Academic calculators" },
-    { "name": "Finance", "url": "/?view=finance", "description": "Finance calculators" }
+    { "name": "Calculator", "url": "./?view=calculator", "description": "Quick calculator" },
+    { "name": "Academic", "url": "./?view=academic", "description": "Academic calculators" },
+    { "name": "Finance", "url": "./?view=finance", "description": "Finance calculators" }
   ]
 }
