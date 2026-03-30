@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head><title>Icon Generator</title></head>
+<body>
+<p>Right-click each canvas → Save image as → save to <code>icons/</code> folder as <code>icon-192.png</code> and <code>icon-512.png</code></p>
+<canvas id="c192" width="192" height="192"></canvas>
+<canvas id="c512" width="512" height="512"></canvas>
+<script>
+function draw(canvas) {
+  const s = canvas.width;
+  const ctx = canvas.getContext('2d');
+  const r = s * 0.18;
+
+  // Background
+  ctx.fillStyle = '#0d1220';
+  roundRect(ctx, 0, 0, s, s, r);
+  ctx.fill();
+
+  // Card
+  ctx.fillStyle = '#111827';
+  roundRect(ctx, s*.12, s*.12, s*.76, s*.76, r*.6);
+  ctx.fill();
+
+  // Screen
+  ctx.fillStyle = '#080c14';
+  roundRect(ctx, s*.18, s*.18, s*.64, s*.22, r*.3);
+  ctx.fill();
+
+  // Number on screen
+  ctx.fillStyle = '#f59e0b';
+  ctx.font = `bold ${s*.18}px monospace`;
+  ctx.textAlign = 'right';
+  ctx.fillText('42', s*.78, s*.36);
+
+  // Button rows
+  const bw = s*.13, bh = s*.09, gap = s*.025;
+  const startX = s*.18, startY = s*.46;
+  const colors = ['#1a2235','#1a2235','#1a2235','rgba(245,158,11,0.3)'];
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 4; col++) {
+      ctx.fillStyle = colors[col];
+      const x = startX + col*(bw+gap);
+      const y = startY + row*(bh+gap);
+      roundRect(ctx, x, y, bw, bh, r*.15);
+      ctx.fill();
+    }
+  }
+  // Bottom row: wide 0, dot, = (accent)
+  ctx.fillStyle = '#1a2235';
+  roundRect(ctx, startX, startY+3*(bh+gap), bw*2+gap, bh, r*.15);
+  ctx.fill();
+  ctx.fillStyle = '#1a2235';
+  roundRect(ctx, startX+2*(bw+gap), startY+3*(bh+gap), bw, bh, r*.15);
+  ctx.fill();
+  ctx.fillStyle = '#f59e0b';
+  roundRect(ctx, startX+3*(bw+gap), startY+3*(bh+gap), bw, bh, r*.15);
+  ctx.fill();
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y);
+  ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r);
+  ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h);
+  ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r);
+  ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+}
+
+draw(document.getElementById('c192'));
+draw(document.getElementById('c512'));
+
+// Auto-download
+['c192','c512'].forEach(id => {
+  const c = document.getElementById(id);
+  const a = document.createElement('a');
+  a.download = id === 'c192' ? 'icon-192.png' : 'icon-512.png';
+  a.href = c.toDataURL();
+  a.textContent = 'Download ' + a.download;
+  a.style.display = 'block';
+  document.body.appendChild(a);
+});
+</script>
+</body>
+</html>

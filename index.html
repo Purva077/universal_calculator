@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="theme-color" content="#f59e0b"/>
+<meta name="description" content="120+ calculators — Academic, Finance, CS/Binary, Science, House, Sound, Equations & more. Works offline."/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="CalcHub"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+
+<!-- Open Graph -->
+<meta property="og:title" content="Universal Calculator Hub"/>
+<meta property="og:description" content="120+ calculators in one app. Works offline."/>
+<meta property="og:type" content="website"/>
+
+<title>Universal Calculator Hub</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+<style>
+/* PWA extras */
+#install-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card2);border-top:1px solid var(--border);padding:.65rem 1rem;z-index:600;align-items:center;gap:.7rem;box-shadow:0 -4px 20px rgba(0,0,0,.4)}
+#install-bar.show{display:flex}
+#install-bar p{flex:1;font-size:.8rem;color:var(--muted2)}
+#install-bar p strong{color:var(--accent)}
+.ibtn{padding:.38rem .9rem;border-radius:.45rem;font-family:'Syne',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;border:none;transition:.15s}
+.ibtn.yes{background:var(--accent);color:#000}.ibtn.yes:hover{background:var(--accent2)}
+.ibtn.no{background:var(--card);border:1px solid var(--border);color:var(--muted2)}.ibtn.no:hover{color:var(--text)}
+#offline-badge{display:none;background:#ef4444;color:#fff;font-size:.65rem;font-weight:700;padding:.1rem .35rem;border-radius:.3rem;margin-left:.3rem}
+#offline-badge.show{display:inline}
+/* Safe area for notched phones */
+body{padding-bottom:env(safe-area-inset-bottom)}
+#topbar{padding-left:max(1rem, env(safe-area-inset-left));padding-right:max(1rem, env(safe-area-inset-right))}
+</style>
+</head>
+<body>
+<div id="topbar">
+  <button class="hbg" onclick="toggleSB()" aria-label="Menu">☰</button>
+  <div class="logo">🧮 <span>Calc</span>Hub <span id="offline-badge">OFFLINE</span></div>
+  <div id="sw">
+    <span class="si">🔍</span>
+    <input id="si" type="text" placeholder="Search 120+ calculators…" autocomplete="off"/>
+    <div id="sr"></div>
+  </div>
+  <div class="tbr">
+    <button class="dmbtn" onclick="toggleTheme()" id="tb">☀️ Light</button>
+    <div class="av">U</div>
+  </div>
+</div>
+<div id="layout">
+<div id="sidebar">
+  <div class="sbs">Main</div>
+  <div class="sbi active" data-view="dashboard" onclick="sv(this)"><span class="ico">⊞</span>Dashboard</div>
+  <div class="sbi" data-view="analytics" onclick="sv(this)"><span class="ico">📊</span>Analytics</div>
+  <div class="sbdiv"></div>
+  <div class="sbs">Calculators</div>
+  <div class="sbi" data-view="academic" onclick="sv(this)"><span class="ico">🎓</span>Academic<span class="sbc">6</span></div>
+  <div class="sbi" data-view="math" onclick="sv(this)"><span class="ico">➗</span>Math<span class="sbc">6</span></div>
+  <div class="sbi" data-view="finance" onclick="sv(this)"><span class="ico">💰</span>Finance<span class="sbc">6</span></div>
+  <div class="sbi" data-view="shopping" onclick="sv(this)"><span class="ico">🛒</span>Shopping<span class="sbc">6</span></div>
+  <div class="sbi" data-view="fuel" onclick="sv(this)"><span class="ico">🚗</span>Fuel & Travel<span class="sbc">5</span></div>
+  <div class="sbi" data-view="global" onclick="sv(this)"><span class="ico">🌐</span>Global<span class="sbc">5</span></div>
+  <div class="sbi" data-view="tech" onclick="sv(this)"><span class="ico">💻</span>Tech<span class="sbc">5</span></div>
+  <div class="sbi" data-view="daily" onclick="sv(this)"><span class="ico">🏠</span>Daily Life<span class="sbc">5</span></div>
+  <div class="sbi" data-view="health" onclick="sv(this)"><span class="ico">❤️</span>Health<span class="sbc">5</span></div>
+  <div class="sbi" data-view="productivity" onclick="sv(this)"><span class="ico">🧠</span>Productivity<span class="sbc">5</span></div>
+  <div class="sbdiv"></div>
+  <div class="sbs">New Categories</div>
+  <div class="sbi" data-view="house" onclick="sv(this)"><span class="ico">🏡</span>House & Area<span class="sbc">7</span></div>
+  <div class="sbi" data-view="cs" onclick="sv(this)"><span class="ico">💾</span>CS & Binary<span class="sbc">8</span></div>
+  <div class="sbi" data-view="datetime" onclick="sv(this)"><span class="ico">📅</span>Date & Time<span class="sbc">5</span></div>
+  <div class="sbi" data-view="allconv" onclick="sv(this)"><span class="ico">🔄</span>Converters<span class="sbc">10</span></div>
+  <div class="sbi" data-view="equation" onclick="sv(this)"><span class="ico">📐</span>X → Y Equation<span class="sbc">4</span></div>
+  <div class="sbi" data-view="sound" onclick="sv(this)"><span class="ico">🔊</span>Sound & Frequency<span class="sbc">5</span></div>
+  <div class="sbi" data-view="alpha" onclick="sv(this)"><span class="ico">🔡</span>Alphabet & Text<span class="sbc">5</span></div>
+  <div class="sbi" data-view="science" onclick="sv(this)"><span class="ico">⚗️</span>Science<span class="sbc">8</span></div>
+  <div class="sbdiv"></div>
+  <div class="sbs">Personal</div>
+  <div class="sbi" data-view="favorites" onclick="sv(this)"><span class="ico">⭐</span>Favorites</div>
+  <div class="sbi" data-view="history" onclick="sv(this)"><span class="ico">🕐</span>History</div>
+  <div class="sbdiv"></div>
+  <div class="sbs">Quick Tools</div>
+  <div class="sbi" data-view="calculator" onclick="sv(this)"><span class="ico">🔢</span>Calculator</div>
+  <div class="sbb"><p><strong>Universal Calculator Hub</strong><br/>v3.0 · 120+ Calculators<br/>✅ Works Offline</p></div>
+</div>
+
+<div id="main">
+<!-- DASHBOARD -->
+<div id="view-dashboard" class="view active">
+  <div class="banner">
+    <h1><span>Universal</span> Calculator Hub 🧮</h1>
+    <p>120+ calculators — Academic, Finance, CS/Binary, Science, House, Sound, Equations & more.</p>
+    <div class="bstats">
+      <div class="bst"><strong>120+</strong><span>Calculators</span></div>
+      <div class="bst"><strong id="sf">0</strong><span>Favorites</span></div>
+      <div class="bst"><strong id="sh2">0</strong><span>Used</span></div>
+      <div class="bst"><strong>18</strong><span>Categories</span></div>
+    </div>
+  </div>
+  <div id="recent-wrap" style="display:none"><div class="sh"><h2>🕐 Recent</h2></div><div class="rp" id="rp"></div></div>
+  <div id="d-academic"></div>
+  <div id="d-house"></div>
+  <div id="d-cs"></div>
+  <div id="d-science"></div>
+  <div id="d-sound"></div>
+</div>
+<!-- ANALYTICS -->
+<div id="view-analytics" class="view">
+  <div class="sh"><h2>📊 Analytics</h2><span class="badge">Sample Data</span></div>
+  <div class="ag" id="ag"></div>
+</div>
+<!-- ALL VIEWS -->
+<div id="view-academic" class="view"></div>
+<div id="view-math" class="view"></div>
+<div id="view-finance" class="view"></div>
+<div id="view-shopping" class="view"></div>
+<div id="view-fuel" class="view"></div>
+<div id="view-global" class="view"></div>
+<div id="view-tech" class="view"></div>
+<div id="view-daily" class="view"></div>
+<div id="view-health" class="view"></div>
+<div id="view-productivity" class="view"></div>
+<div id="view-house" class="view"></div>
+<div id="view-cs" class="view"></div>
+<div id="view-datetime" class="view"></div>
+<div id="view-allconv" class="view"></div>
+<div id="view-equation" class="view"></div>
+<div id="view-sound" class="view"></div>
+<div id="view-alpha" class="view"></div>
+<div id="view-science" class="view"></div>
+<div id="view-favorites" class="view"><div class="sh"><h2>⭐ Favorites</h2></div><div id="fav-g" class="cg"></div></div>
+<div id="view-history" class="view"><div class="sh"><h2>🕐 History</h2></div><div id="hist-l"></div></div>
+<div id="view-calculator" class="view">
+  <div class="sh"><h2>🔢 Calculator</h2><span class="badge">Standard + Scientific</span></div>
+  <div id="calc-wrap">
+    <div id="calc-widget">
+      <div id="calc-screen">
+        <div id="calc-expr"></div>
+        <div id="calc-disp">0</div>
+      </div>
+      <div class="calc-btns">
+        <button class="cb clr" onclick="cAC()">AC</button>
+        <button class="cb fn" onclick="cToggleSign()">+/−</button>
+        <button class="cb fn" onclick="cPercent()">%</button>
+        <button class="cb op" onclick="cOp('÷')">÷</button>
+        <button class="cb num" onclick="cNum('7')">7</button>
+        <button class="cb num" onclick="cNum('8')">8</button>
+        <button class="cb num" onclick="cNum('9')">9</button>
+        <button class="cb op" onclick="cOp('×')">×</button>
+        <button class="cb num" onclick="cNum('4')">4</button>
+        <button class="cb num" onclick="cNum('5')">5</button>
+        <button class="cb num" onclick="cNum('6')">6</button>
+        <button class="cb op" onclick="cOp('−')">−</button>
+        <button class="cb num" onclick="cNum('1')">1</button>
+        <button class="cb num" onclick="cNum('2')">2</button>
+        <button class="cb num" onclick="cNum('3')">3</button>
+        <button class="cb op" onclick="cOp('+')">+</button>
+        <button class="cb num zero" onclick="cNum('0')">0</button>
+        <button class="cb num" onclick="cDot()">.</button>
+        <button class="cb eq" onclick="cEquals()">=</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin-top:.4rem">
+        <button class="cb fn" onclick="cSci('sqrt')">√</button>
+        <button class="cb fn" onclick="cSci('sq')">x²</button>
+        <button class="cb fn" onclick="cSci('inv')">1/x</button>
+        <button class="cb fn" onclick="cSci('log')">log</button>
+        <button class="cb fn" onclick="cSci('ln')">ln</button>
+        <button class="cb fn" onclick="cSci('sin')">sin</button>
+        <button class="cb fn" onclick="cSci('cos')">cos</button>
+        <button class="cb fn" onclick="cSci('tan')">tan</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin-top:.4rem">
+        <button class="cb fn" onclick="cSci('pi')">π</button>
+        <button class="cb fn" onclick="cSci('e')">e</button>
+        <button class="cb fn" onclick="cSci('abs')">|x|</button>
+        <button class="cb clr" onclick="cDel()">⌫</button>
+      </div>
+    </div>
+    <div id="calc-hist">
+      <h4>History <button onclick="cClearHist()">Clear</button></h4>
+      <div id="calc-hist-list"><p style="font-size:.75rem;color:var(--muted)">No calculations yet.</p></div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- MODAL -->
+<div id="mo" onclick="closeMO(event)" role="dialog" aria-modal="true" aria-labelledby="mt">
+  <div id="mb">
+    <div class="mh"><h3 id="mt">Calculator</h3><button class="mc" onclick="closeMD()" aria-label="Close">✕</button></div>
+    <div class="mbody" id="mbody"></div>
+  </div>
+</div>
+
+<!-- PWA Install Bar -->
+<div id="install-bar" role="banner">
+  <p>📲 Install <strong>CalcHub</strong> — works offline, no browser needed</p>
+  <button class="ibtn no" onclick="dismissInstall()">Not now</button>
+  <button class="ibtn yes" onclick="doInstall()">Install App</button>
+</div>
+
+<script src="app.js"></script>
+<script>
+// ── PWA: Service Worker ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      console.log('[SW] Registered', reg.scope);
+    }).catch(err => console.warn('[SW] Failed', err));
+  });
+}
+
+// ── PWA: Install Prompt ──
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const dismissed = localStorage.getItem('uch_install_dismissed');
+  if (!dismissed) {
+    setTimeout(() => document.getElementById('install-bar').classList.add('show'), 3000);
+  }
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-bar').classList.remove('show');
+  deferredPrompt = null;
+});
+function doInstall() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(r => {
+    deferredPrompt = null;
+    document.getElementById('install-bar').classList.remove('show');
+  });
+}
+function dismissInstall() {
+  document.getElementById('install-bar').classList.remove('show');
+  localStorage.setItem('uch_install_dismissed', '1');
+}
+
+// ── Offline indicator ──
+function updateOnline() {
+  document.getElementById('offline-badge').classList.toggle('show', !navigator.onLine);
+}
+window.addEventListener('online', updateOnline);
+window.addEventListener('offline', updateOnline);
+updateOnline();
+
+// ── Deep link: ?view=xxx ──
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(location.search);
+  const view = params.get('view');
+  if (view) {
+    const el = document.querySelector(`.sbi[data-view="${view}"]`);
+    if (el) sv(el);
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "universal-calculator-hub",
+  "version": "3.0.0",
+  "description": "120+ calculators — Academic, Finance, CS/Binary, Science, Health & more. PWA, works offline.",
+  "private": true,
+  "scripts": {
+    "start": "npx serve . -p 3000",
+    "dev": "npx serve . -p 3000 --no-clipboard"
+  },
+  "keywords": ["calculator", "pwa", "offline", "academic", "finance"],
+  "license": "MIT"
+}

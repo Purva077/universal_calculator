@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0d1220"/>
+  <rect x="80" y="80" width="352" height="352" rx="40" fill="#111827" stroke="#1e2d45" stroke-width="4"/>
+  <!-- Screen -->
+  <rect x="110" y="110" width="292" height="90" rx="12" fill="#080c14"/>
+  <text x="390" y="185" font-family="monospace" font-size="52" font-weight="bold" fill="#f59e0b" text-anchor="end">42</text>
+  <!-- Buttons grid -->
+  <rect x="110" y="220" width="60" height="44" rx="8" fill="#1a2235"/>
+  <rect x="182" y="220" width="60" height="44" rx="8" fill="#1a2235"/>
+  <rect x="254" y="220" width="60" height="44" rx="8" fill="#1a2235"/>
+  <rect x="326" y="220" width="76" height="44" rx="8" fill="rgba(245,158,11,0.2)"/>
+  <rect x="110" y="276" width="60" height="44" rx="8" fill="#1a2235"/>
+  <rect x="182" y="276" width="60" height="44" rx="8" fill="#1a2235"/>
+  <rect x="254" y="276" width="60" height="44" rx="8" fill="#1a2235"/>
+  <rect x="326" y="276" width="76" height="44" rx="8" fill="rgba(245,158,11,0.2)"/>
+  <rect x="110" y="332" width="60" height="44" rx="8" fill="#1a2235"/>
+  <rect x="182" y="332" width="60" height="44" rx="8" fill="#1a2235"/>
+  <rect x="254" y="332" width="60" height="44" rx="8" fill="#1a2235"/>
+  <rect x="326" y="332" width="76" height="44" rx="8" fill="rgba(245,158,11,0.2)"/>
+  <rect x="110" y="388" width="132" height="44" rx="8" fill="#1a2235"/>
+  <rect x="254" y="388" width="60" height="44" rx="8" fill="#1a2235"/>
+  <rect x="326" y="388" width="76" height="44" rx="8" fill="#f59e0b"/>
+  <!-- Accent dot -->
+  <circle cx="256" cy="56" r="8" fill="#f59e0b"/>
+</svg>
