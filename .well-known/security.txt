@@ -1,0 +1,11 @@
+Contact: https://github.com/Purva077/universal_calculator/security/advisories/new
+Expires: 2027-03-31T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://universal-calculator-hub.vercel.app/.well-known/security.txt
+Policy: https://github.com/Purva077/universal_calculator/blob/master/SECURITY.md
+Acknowledgments: https://github.com/Purva077/universal_calculator/blob/master/SECURITY.md#acknowledgments
+
+# Security Contact Information
+# If you discover a security vulnerability, please report it responsibly.
+# Do not open public issues for security vulnerabilities.
+# Contact us through GitHub Security Advisories or email.
