@@ -4,13 +4,13 @@
   "description": "120+ calculators — Academic, Finance, CS/Binary, Science, Health & more. PWA, works offline.",
   "author": "Universal Calculator Hub",
   "license": "MIT",
-  "homepage": "https://github.com/YOUR_USERNAME/universal-calculator-hub",
+  "homepage": "https://github.com/Purva077/universal_calculator",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_USERNAME/universal-calculator-hub.git"
+    "url": "https://github.com/Purva077/universal_calculator.git"
   },
   "bugs": {
-    "url": "https://github.com/YOUR_USERNAME/universal-calculator-hub/issues"
+    "url": "https://github.com/Purva077/universal_calculator/issues"
   },
   "keywords": [
     "calculator",
